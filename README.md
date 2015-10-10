@@ -7,6 +7,10 @@ script then refreshes the Trades page every 5 seconds looking for a "Send Card" 
 will click the button and then complete the trade for you. You can leave pucauto running in the background of
 your computer while you do other things or when you're sleeping or at work.
 
+I got these trades in a few hours while playing video games, haha.
+
+![trades](http://i.imgur.com/oBm2EmZ.png)
+
 ### Installation
 
 #### Prerequisites
