@@ -21,8 +21,10 @@ contribute to this repo and help me write some Windows instructions?
 
 #### Steps
 
-1. Clone this repository somewhere on your machine using `git clone https://github.com/tomreece/pucauto.git`
-2. Run `pip install -r requirements.txt`
+1. Open Terminal
+2. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
+3. Run `cd pucauto`
+3. Run `pip install -r requirements.txt`
 
 ### Running
 
