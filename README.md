@@ -1,6 +1,6 @@
 # pucauto
 
-A tool to help you automatically check for and accept trades on pucatrade.com.
+A Pucatrade bot that will automatically accept trades for you.
 
 pucauto is a Python script that uses Selenium to launch a Firefox instance and log you in to Pucatrade. The
 script then refreshes the Trades page every 5 seconds looking for a "Send Card" button. If it finds one, it
