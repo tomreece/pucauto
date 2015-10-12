@@ -7,9 +7,9 @@ script then refreshes the Trades page every 5 seconds looking for a "Send Card" 
 will click the button and then complete the trade for you. You can leave pucauto running in the background of
 your computer while you do other things or when you're sleeping or at work.
 
-I got these trades in a few hours while playing video games, haha.
+Now I need to build a bot to fill out envelopes...
 
-![trades](http://i.imgur.com/oBm2EmZ.png)
+![too-many-envelopes](http://i.imgur.com/S9ZHiO3.jpg)
 
 ### Installation
 
@@ -35,6 +35,22 @@ contribute to this repo and help me write some Windows instructions?
 After you have followed the installation steps, you can run pucauto with:
 
 `python pucauto.py youremailaddress@gmail.com yourpucatradepassword`
+
+### Advanced Usage
+
+If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can run the script there. You'll just need to install Firefox, Xvfb, and tmux. This is how I run mine on a Rackspace Ubuntu instance.
+
+1. ssh in to your server
+2. `apt-get install firefox xvfb tmux git` to install dependencies
+3. `git clone https://github.com/tomreece/pucauto.git` to clone this repository
+4. `cd pucauto`
+3. `Xvfb &` to start Xvfb in the background
+4. `tmux` to start a tmux session which will continue to run when you disconnect from the server
+5. `python pucauto.py youremailaddress@gmail.com yourpucatradepassword` to start pucauto
+6. If you get no error messages, then everything is working.
+7. `ctrl + b then press d` to detach from the tmux session (it will continue to run)
+8. You can now exit your ssh session to the server.
+9. When you reconnect to the server later, `tmux at` to re-attach to the tmux session you started earlier and pucauto will still be running.
 
 ### Help
 
