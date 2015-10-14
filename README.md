@@ -41,16 +41,17 @@ After you have followed the installation steps, you can run pucauto with:
 If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can run the script there. You'll just need to install Firefox, Xvfb, and tmux. This is how I run mine on a Rackspace Ubuntu instance.
 
 1. ssh in to your server
-2. `apt-get install firefox xvfb tmux git` to install dependencies
-3. `git clone https://github.com/tomreece/pucauto.git` to clone this repository
-4. `cd pucauto`
-3. `Xvfb &` to start Xvfb in the background
-4. `tmux` to start a tmux session which will continue to run when you disconnect from the server
-5. `python pucauto.py youremailaddress@gmail.com yourpucatradepassword` to start pucauto
-6. If you get no error messages, then everything is working.
-7. `ctrl + b then press d` to detach from the tmux session (it will continue to run)
-8. You can now exit your ssh session to the server.
-9. When you reconnect to the server later, `tmux at` to re-attach to the tmux session you started earlier and pucauto will still be running.
+1. `apt-get install firefox xvfb tmux git` to install dependencies
+1. `git clone https://github.com/tomreece/pucauto.git` to clone this repository
+1. `cd pucauto`
+1. `Xvfb &` to start Xvfb in the background
+1. `export DISPLAY=:0` so Firefox knows which Xvfb display to use
+1. `tmux` to start a tmux session which will continue to run when you disconnect from the server
+1. `python pucauto.py youremailaddress@gmail.com yourpucatradepassword` to start pucauto
+1. If you get no error messages, then everything is working.
+1. `ctrl + b then press d` to detach from the tmux session (it will continue to run)
+1. You can now exit your ssh session to the server.
+1. When you reconnect to the server later, `tmux at` to re-attach to the tmux session you started earlier and pucauto will still be running.
 
 ### Help
 
