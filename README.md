@@ -52,6 +52,7 @@ If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can ru
 1. `ctrl + b then press d` to detach from the tmux session (it will continue to run)
 1. You can now exit your ssh session to the server.
 1. When you reconnect to the server later, `tmux at` to re-attach to the tmux session you started earlier and pucauto will still be running.
+1. After a few days of running, Firefox seems to continually eat up more and more memory so you may need to stop `python pucauto.py` and start it again.
 
 ### Help
 
