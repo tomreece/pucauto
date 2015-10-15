@@ -54,6 +54,15 @@ If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can ru
 1. When you reconnect to the server later, `tmux at` to re-attach to the tmux session you started earlier and pucauto will still be running.
 1. After a few days of running, Firefox seems to continually eat up more and more memory so you may need to stop `python pucauto.py` and start it again.
 
+### FAQ
+
+* Why do I have to provide my Pucatrade username and password? Is this safe?
+    * The bot types your username and password into the proper fields on the Pucatrade page. You can see this happening in `pucauto.py` on line 20. Your username and password are not used for anything else. That's why this project is open source, so you can see the code and know roughly what's happening even if you're not a developer.
+* How do I run this on Windows?
+    * I have a collaborator working on Windows instructions. They should be added to this README soon. Check back.
+* This is too difficult for me, but the bot sounds useful. Can you run it for me?
+    * Yes. Email me at tomreece[at]gmail.com and we'll talk.
+
 ### Help
 
 If you have any questions, feel free to reach out to me on Twitter @tomreece or tomreece[at]gmail.com
