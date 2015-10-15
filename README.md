@@ -56,4 +56,6 @@ If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can ru
 
 ### Help
 
-If you have any questions, feel free to reach out to me on Twitter @tomreece
+If you have any questions, feel free to reach out to me on Twitter @tomreece or tomreece[at]gmail.com
+
+If the above instructions are too complicated and you are still interested in using pucauto, hit me up at tomreece[at]gmail.com and we can talk. I would be willing to run the bot for you against your Pucatrade account if you cover the small server cost of $5 a month. I'll let you try for a week before you pay.
