@@ -22,7 +22,7 @@ Now I need to build a bot to fill out envelopes...
 
 #### Mac
 
-1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download and unzip the .zip using the link over on the right --->.
+1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download and unzip the .zip using the link over on the right --->
 1. Open Terminal.
 1. Go to the pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
@@ -67,8 +67,6 @@ If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can ru
 
 * Why do I have to provide my Pucatrade username and password? Is this safe?
     * The bot types your username and password into the proper fields on the Pucatrade page. You can see this happening in `pucauto.py` on line 20. Your username and password are not used for anything else. That's why this project is open source, so you can see the code and know roughly what's happening even if you're not a developer.
-* How do I run this on Windows?
-    * I have a collaborator working on Windows instructions. They should be added to this README soon. Check back.
 * This is too difficult for me, but the bot sounds useful. Can you run it for me?
     * Yes. Email me at tomreece[at]gmail.com and we'll talk.
 
