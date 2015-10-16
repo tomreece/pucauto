@@ -16,19 +16,28 @@ Now I need to build a bot to fill out envelopes...
 #### Prerequisites
 
 1. Git
-2. Python
-3. Pip
-4. Firefox
+1. Python
+1. Pip
+1. Firefox
 
-Most Macs come with most of this stuff already installed. If you're on Windows, I'm not sure what to do. Can someone
-contribute to this repo and help me write some Windows instructions?
-
-#### Steps
+#### Mac
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download and unzip the .zip using the link over on the right --->.
-2. Open Terminal.
-3. Go to the pucauto folder you just cloned or downloaded.
-3. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
+1. Open Terminal.
+1. Go to the pucauto folder you just cloned or downloaded.
+1. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
+
+#### Windows
+
+1. Download and install Firefox if you don't already have it.
+1. Download Python from https://www.python.org/downloads/
+1. Install Python. **IMPORTANT:** Select the check box to associate Python with environment variables
+1. Download this repository using the link on the right -->
+1. Use 7zip or WinRar to expand the archive
+1. Download Selenium from `https://pypi.python.org/pypi/selenium`. You want the file named selenium-2.48.0.tar.gz
+1. Extract the Selenium archive. Extract the nested archive /dist/selenium-2.48.0/.
+1. From inside the interior folder (you should see sub-folders named `build`, `dist`, `py`, and `selenium.egg`), Shift-Right Click, then select 'Open command window here'.
+1. Run the command `python setup.py install`
 
 ### Running
 
