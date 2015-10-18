@@ -8,6 +8,13 @@ body {
     height: 31px;
 }
 
+#envelopes, #trades {
+    width: 100%;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
 /* BOOTSTRAP OVERRIDES */
 
 .navbar-brand {
