@@ -2,3 +2,14 @@ body {
     padding-top: 80px;
     padding-bottom: 30px;
 }
+
+#logo {
+    width: 97px;
+    height: 31px;
+}
+
+/* BOOTSTRAP OVERRIDES */
+
+.navbar-brand {
+    padding: 16px 15px;
+}
