@@ -50,9 +50,10 @@ After you have followed the installation steps, you can run pucauto with:
 If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can run the script there. You'll just need to install Firefox, Xvfb, and tmux. This is how I run mine on a Rackspace Ubuntu instance.
 
 1. ssh in to your server
-1. `apt-get install firefox xvfb tmux git` to install dependencies
+1. `sudo apt-get install firefox xvfb tmux git python-pip` to install dependencies
 1. `git clone https://github.com/tomreece/pucauto.git` to clone this repository
 1. `cd pucauto`
+1. `sudo pip install -r requirements.txt`
 1. `Xvfb &` to start Xvfb in the background
 1. `export DISPLAY=:0` so Firefox knows which Xvfb display to use
 1. `tmux` to start a tmux session which will continue to run when you disconnect from the server
