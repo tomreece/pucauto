@@ -15,6 +15,14 @@ body {
     margin-bottom: 10px;
 }
 
+.testimonial {
+    font-style: italic;
+}
+
+.testimonial span {
+    color: #bbbbbb;
+}
+
 /* BOOTSTRAP OVERRIDES */
 
 .navbar-brand {
