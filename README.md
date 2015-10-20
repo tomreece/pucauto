@@ -69,10 +69,10 @@ If you have a cloud server somewhere like Rackspace, AWS, Linode, etc you can ru
 * Why do I have to provide my Pucatrade username and password? Is this safe?
     * The bot types your username and password into the proper fields on the Pucatrade page. You can see this happening in `pucauto.py` on line 20. Your username and password are not used for anything else. That's why this project is open source, so you can see the code and know roughly what's happening even if you're not a developer.
 * This is too difficult for me, but the bot sounds useful. Can you run it for me?
-    * Yes. Email me at tomreece[at]gmail.com and we'll talk.
+    * Yes. Email me at tomreece@gmail.com and we'll talk.
 
 ### Help
 
-If you have any questions, feel free to reach out to me on Twitter @tomreece or tomreece[at]gmail.com
+If you have any questions, feel free to reach out to me on Twitter [@tomreece](https://twitter.com/tomreece) or tomreece@gmail.com
 
-If the above instructions are too complicated and you are still interested in using pucauto, hit me up at tomreece[at]gmail.com and we can talk. I would be willing to run the bot for you against your Pucatrade account if you cover the small server cost of $5 a month. I'll let you try for a week before you pay.
+If the above instructions are too complicated and you are still interested in using pucauto, [let us run it for you!](http://www.pucauto.com/us.html)
