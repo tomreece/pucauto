@@ -22,16 +22,16 @@ Now I need to build a bot to fill out envelopes...
 
 #### Mac
 
-1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download and unzip the .zip using
- the link over on the right --->
+1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
+  [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
 1. Open Terminal.
 1. Go to the pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
 
 #### Windows
 
-1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download and unzip the .zip using
- the link over on the right --->
+1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
+  [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
 1. Download Python from https://www.python.org/downloads/
 1. Install Python. **IMPORTANT:** Select the check box to associate Python with environment variables.
 1. Use 7zip or WinRar to expand the archive.
@@ -82,8 +82,7 @@ If the above instructions are too complicated and you are still interested in us
 
 ### Changelog
 
-#### 2015-10-22
-
+#### 2015-10-22 [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
 * Username and password are now entered in `config.json` instead of as arguments when starting the script. So now you start
   the bot with `python pucauto.py` after setting the values in `config.json`.
 * Added a `min_value` configuration option. pucauto will only accept trades above this value.
