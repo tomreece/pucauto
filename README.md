@@ -1,5 +1,7 @@
 # pucauto
 
+[Donate To Help Support Pucauto Development](https://www.dwolla.com/hub/pucauto)
+
 A Pucatrade bot that will automatically accept trades for you.
 
 pucauto is a Python script that will launch a Firefox instance and log you in to Pucatrade. The
