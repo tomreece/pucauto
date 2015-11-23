@@ -9,10 +9,6 @@ bot then refreshes the Trades page every 5 seconds looking for a "Send Card" but
 will click the button and then complete the trade for you. You can leave pucauto running in the background of
 your computer while you do other things or when you're sleeping or at work.
 
-Now I need to build a bot to fill out envelopes...
-
-![too-many-envelopes](http://i.imgur.com/S9ZHiO3.jpg)
-
 ### Installation
 
 #### Prerequisites
@@ -25,7 +21,7 @@ Now I need to build a bot to fill out envelopes...
 #### Mac
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
-  [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
+  [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
 1. Open Terminal.
 1. Go to the pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
@@ -33,7 +29,7 @@ Now I need to build a bot to fill out envelopes...
 #### Windows
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
-  [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
+  [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
 1. Download Python from https://www.python.org/downloads/
 1. Install Python. **IMPORTANT:** Select the check box to associate Python with environment variables.
 1. Use 7zip or WinRar to expand the archive.
@@ -47,7 +43,7 @@ Now I need to build a bot to fill out envelopes...
 1. Open `config.json` in a plain text editor like Notepad or Sublime Text.
 2. Enter your Pucatrade username and password in place of the default values in the file. Be sure to keep the quotes around
  the values.
-3. Set the min_value to the lowest value you want the bot to accept. Cards under this value will not be traded.
+3. Set the min_value to the lowest value you want the bot to accept. Cards or bundles under this value will not be traded.
 4. Save `config.json`
 
 ### Running
@@ -83,6 +79,9 @@ If you have any questions, feel free to reach out to me on Twitter [@tomreece](h
 If the above instructions are too complicated and you are still interested in using pucauto, [let us run it for you!](http://www.pucauto.com/us.html)
 
 ### Changelog
+
+#### 2015-11-22 [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
+* Pucauto will now accept multiple lower value trades to the same user that add up to exceed your configured min_value. This bundling helps you get rid of lots of low value cards without wasting money on stamps.
 
 #### 2015-10-22 [v0.2.0](https://github.com/tomreece/pucauto/archive/v0.2.0.zip)
 * Username and password are now entered in `config.json` instead of as arguments when starting the script. So now you start
