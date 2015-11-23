@@ -30,7 +30,7 @@ your computer while you do other things or when you're sleeping or at work.
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
   [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
-1. Download Python from https://www.python.org/downloads/
+1. Download Python 2 from https://www.python.org/downloads/
 1. Install Python. **IMPORTANT:** Select the check box to associate Python with environment variables.
 1. Use 7zip or WinRar to expand the archive.
 1. Download Selenium from `https://pypi.python.org/pypi/selenium`. You want the file named selenium-2.48.0.tar.gz
