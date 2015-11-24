@@ -3,9 +3,12 @@ from __future__ import print_function
 
 import json
 import time
+import sys
 from selenium import webdriver
 from datetime import datetime
 
+PYVERSION = sys.version_info[0];
+print("Running with Python " + str(PYVERSION))
 
 CONFIG_FILE = open("config.json")
 CONFIG = json.load(CONFIG_FILE)
@@ -174,7 +177,12 @@ def filter_trades_dict(trades):
 
     valid_trades = {}
 
-    for member, v in trades.iteritems():
+    if PYVERSION == 2:
+        trade_iter = trades.iteritems()
+    else:
+        trade_iter = trades.items()
+
+    for member, v in trade_iter:
         value = 0
         for card in v.get("cards"):
             value += card.get("value")
@@ -188,7 +196,12 @@ def filter_trades_dict(trades):
 def complete_trades(valid_trades):
     """Iterate through the valid_trades dictionary and complete the trades."""
 
-    for member, v in valid_trades.iteritems():
+    if PYVERSION == 2:
+        trade_iter = valid_trades.iteritems()
+    else:
+        trade_iter = valid_trades.items()
+
+    for member, v in trade_iter:
         cards = v.get("cards")
         # Sort the cards by highest value to make the most valuable trades first.
         sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
