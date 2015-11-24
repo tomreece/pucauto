@@ -40,6 +40,18 @@ def wait(sec):
     time.sleep(sec)
 
 
+def wait_for_load():
+    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
+    This function solves that by waiting for their loading spinner to dissappear."""
+
+    wait(3)
+    while True:
+        try:
+            loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
+        except Exception:
+            break
+
+
 def log_in():
     """Navigate to pucatrade.com and log in using credentials from config."""
 
@@ -192,6 +204,7 @@ def complete_trades(valid_trades):
         cards = v.get("cards")
         # Sort the cards by highest value to make the most valuable trades first.
         sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
+        print("{} - {}").format(member, sorted_cards)
         for idx, card in enumerate(sorted_cards):
             try:
                 # We have to select row by this sort of complicated XPATH because after a trade has been confirmed
@@ -201,17 +214,14 @@ def complete_trades(valid_trades):
                 row = DRIVER.find_element_by_xpath(row_xpath)
                 send_button = row.find_element_by_class_name("sendCard")
                 send_button.click()
-                wait(2)
+                wait_for_load()
                 confirm_trade(card)
-                wait(2)
+                wait_for_load()
                 DRIVER.find_element_by_css_selector(".fancybox-close").click()
-                wait(2)
-            except Exception:
-                if idx == 0:
-                    # Give up on this bundle if the first and highest value card fails
-                    break
-                else:
-                    continue
+                wait_for_load()
+            except Exception as e:
+                print("complete_trades exception: {}".format(e))
+                continue
 
 
 def find_trades():
@@ -222,18 +232,6 @@ def find_trades():
     trades = build_trades_dict(rows)
     valid_trades = filter_trades_dict(trades)
     complete_trades(valid_trades)
-
-
-def wait_for_load():
-    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
-    This function solves that by waiting for their loading spinner to dissappear."""
-
-    wait(5)
-    while True:
-        try:
-            loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
-        except Exception:
-            break
 
 
 def main():
@@ -249,8 +247,8 @@ def main():
     print("Sorting by member...")
     sort_by_member()
     wait_for_load()
-    print("Finding trades...")
     while check_runtime():
+        print("{} Finding trades...".format(datetime.now()))
         goto_trades()
         find_trades()
 
