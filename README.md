@@ -21,7 +21,7 @@ your computer while you do other things or when you're sleeping or at work.
 #### Mac
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
-  [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
+  [v0.3.1](https://github.com/tomreece/pucauto/archive/v0.3.1.zip)
 1. Open Terminal.
 1. Go to the pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password when prompted.
@@ -29,7 +29,7 @@ your computer while you do other things or when you're sleeping or at work.
 #### Windows
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git` or download the latest release
-  [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
+  [v0.3.1](https://github.com/tomreece/pucauto/archive/v0.3.1.zip)
 1. Download Python 2 from https://www.python.org/downloads/
 1. Install Python. **IMPORTANT:** Select the check box to associate Python with environment variables.
 1. Use 7zip or WinRar to expand the archive.
@@ -79,6 +79,9 @@ If you have any questions, feel free to reach out to me on Twitter [@tomreece](h
 If the above instructions are too complicated and you are still interested in using pucauto, [let us run it for you!](http://www.pucauto.com/us.html)
 
 ### Changelog
+
+#### 2015-11-23 [v0.3.1](https://github.com/tomreece/pucauto/archive/v0.3.1.zip)
+* Accept highest value cards in bundles first and fail the whole bundle if the highest value card fails, for safety. This isn't perfect but tries to recover from a situation where the first card is worth most of the bundle.
 
 #### 2015-11-22 [v0.3.0](https://github.com/tomreece/pucauto/archive/v0.3.0.zip)
 * Pucauto will now accept multiple lower value trades to the same user that add up to exceed your configured min_value. This bundling helps you get rid of lots of low value cards without wasting money on stamps.
