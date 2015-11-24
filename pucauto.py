@@ -192,7 +192,7 @@ def complete_trades(valid_trades):
         cards = v.get("cards")
         # Sort the cards by highest value to make the most valuable trades first.
         sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
-        for card in sorted_cards:
+        for idx, card in enumerate(sorted_cards):
             try:
                 # We have to select row by this sort of complicated XPATH because after a trade has been confirmed
                 # the table changes state because the confirmed trade was removed.
@@ -207,7 +207,11 @@ def complete_trades(valid_trades):
                 DRIVER.find_element_by_css_selector(".fancybox-close").click()
                 wait(2)
             except Exception:
-                continue
+                if idx == 0:
+                    # Give up on this bundle if the first and highest value card fails
+                    break
+                else:
+                    continue
 
 
 def find_trades():
