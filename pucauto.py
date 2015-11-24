@@ -99,7 +99,7 @@ def load_full_trade_list():
     old_scroll_y = 0
     while True:
         DRIVER.execute_script("window.scrollBy(0, 5000);")
-        wait(2)
+        wait_for_load()
         new_scroll_y = DRIVER.execute_script("return window.scrollY;")
         if new_scroll_y == old_scroll_y:
             break
@@ -189,7 +189,10 @@ def complete_trades(valid_trades):
     """Iterate through the valid_trades dictionary and complete the trades."""
 
     for member, v in valid_trades.iteritems():
-        for card in v.get("cards"):
+        cards = v.get("cards")
+        # Sort the cards by highest value to make the most valuable trades first.
+        sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
+        for card in sorted_cards:
             try:
                 # We have to select row by this sort of complicated XPATH because after a trade has been confirmed
                 # the table changes state because the confirmed trade was removed.
@@ -217,6 +220,18 @@ def find_trades():
     complete_trades(valid_trades)
 
 
+def wait_for_load():
+    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
+    This function solves that by waiting for their loading spinner to dissappear."""
+
+    wait(5)
+    while True:
+        try:
+            loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
+        except Exception:
+            break
+
+
 def main():
     """Start Pucauto."""
 
@@ -226,10 +241,10 @@ def main():
     print("Turning on auto matching...")
     goto_trades()
     turn_on_auto_matching()
-    wait(5)
+    wait_for_load()
     print("Sorting by member...")
     sort_by_member()
-    wait(5)
+    wait_for_load()
     print("Finding trades...")
     while check_runtime():
         goto_trades()
