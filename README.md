@@ -41,11 +41,13 @@ your computer while you do other things or when you're sleeping or at work.
 
 ### Configuring
 
-1. Open `config.json` in a plain text editor like Notepad or Sublime Text.
+1. Open `config.example.json` in a plain text editor like Notepad or Sublime Text.
 2. Enter your Pucatrade username and password in place of the default values in the file. Be sure to keep the quotes around
  the values.
-3. Set the min_value to the lowest value you want the bot to accept. Cards or bundles under this value will not be traded.
-4. Save `config.json`
+3. Set the min_value to the lowest value you want Pucauto to accept. Cards or bundles under this value will not be traded.
+4. Save the file as `config.json`, _not_ `config.example.json`. This is for safety to prevent accidental commits of credentials
+  to the public repository.
+5. You'll get an error on startup if you forget to save as `config.json`.
 
 ### Running
 

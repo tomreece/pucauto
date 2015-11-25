@@ -8,9 +8,8 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 
-CONFIG_FILE = open("config.json")
-CONFIG = json.load(CONFIG_FILE)
-CONFIG_FILE.close()
+with open("config.json") as config:
+    CONFIG = json.load(config)
 
 
 DRIVER = webdriver.Firefox()
