@@ -5,6 +5,8 @@ import json
 import time
 from selenium import webdriver
 from datetime import datetime
+from bs4 import BeautifulSoup
+from pprint import pprint
 
 
 CONFIG_FILE = open("config.json")
@@ -44,7 +46,7 @@ def wait_for_load():
     """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
     This function solves that by waiting for their loading spinner to dissappear."""
 
-    wait(3)
+    wait(1)
     while True:
         try:
             loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
@@ -113,13 +115,13 @@ def load_full_trade_list():
         DRIVER.execute_script("window.scrollBy(0, 5000);")
         wait_for_load()
         new_scroll_y = DRIVER.execute_script("return window.scrollY;")
-        if new_scroll_y == old_scroll_y:
+        if new_scroll_y == old_scroll_y or new_scroll_y < old_scroll_y:
             break
         else:
             old_scroll_y = new_scroll_y
 
 
-def build_trades_dict(rows):
+def build_trades_dict(soup):
     """Iterate through the rows in the table on the /trades page and build up a dictionary. Returns a dictionary like:
 
     {
@@ -153,15 +155,17 @@ def build_trades_dict(rows):
 
     trades = {}
 
-    for row in rows:
+    for row in soup.find_all("tr", id=lambda x: x and x.startswith('uc_')):
         try:
-            member_name = row.find_element_by_css_selector("td.member a:nth-of-type(3)").text
-            member_points = int(row.find_element_by_css_selector("td.points").text)
-            card_name = row.find_element_by_css_selector(".cl").text
-            card_value = int(row.find_element_by_css_selector(".value").text)
+            member_name = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles")).text
+            member_points = int(row.find("td", class_="points").text)
+            card_name = row.find("a", class_="cl").text
+            card_value = int(row.find("td", class_="value").text)
+            card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
             card = {
                 "name": card_name,
-                "value": card_value
+                "value": card_value,
+                "href": card_href
             }
             if trades.get(member_name):
                 # Seen this member before in another row so just add another card
@@ -204,33 +208,19 @@ def complete_trades(valid_trades):
         cards = v.get("cards")
         # Sort the cards by highest value to make the most valuable trades first.
         sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
-        print("{} - {}").format(member, sorted_cards)
         for idx, card in enumerate(sorted_cards):
-            try:
-                # We have to select row by this sort of complicated XPATH because after a trade has been confirmed
-                # the table changes state because the confirmed trade was removed.
-                row_xpath = ("//tr[(td[2]//a[contains(., '{}')]) and (td[5]//a[contains(., '{}')])]"
-                    .format(card.get("name"), member))
-                row = DRIVER.find_element_by_xpath(row_xpath)
-                send_button = row.find_element_by_class_name("sendCard")
-                send_button.click()
-                wait_for_load()
-                confirm_trade(card)
-                wait_for_load()
-                DRIVER.find_element_by_css_selector(".fancybox-close").click()
-                wait_for_load()
-            except Exception as e:
-                print("complete_trades exception: {}".format(e))
-                continue
+            DRIVER.get(card.get("href"))
+            DRIVER.get(card.get("href").replace("sendcard", "confirm"))
 
 
 def find_trades():
     """The special sauce. Read the docstrings for the individual functions to figure out how this works."""
 
     load_full_trade_list()
-    rows = DRIVER.find_elements_by_css_selector(".cards-show tbody tr")
-    trades = build_trades_dict(rows)
+    soup = BeautifulSoup(DRIVER.page_source, 'html.parser')
+    trades = build_trades_dict(soup)
     valid_trades = filter_trades_dict(trades)
+    pprint(valid_trades)
     complete_trades(valid_trades)
 
 
@@ -244,12 +234,10 @@ def main():
     goto_trades()
     turn_on_auto_matching()
     wait_for_load()
-    print("Sorting by member...")
-    sort_by_member()
-    wait_for_load()
     while check_runtime():
         print("{} Finding trades...".format(datetime.now()))
         goto_trades()
+        wait_for_load()
         find_trades()
 
 # FIRE IT UP!
