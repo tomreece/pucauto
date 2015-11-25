@@ -6,7 +6,6 @@ import time
 from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
-from pprint import pprint
 
 
 CONFIG_FILE = open("config.json")
@@ -31,22 +30,16 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    www.pucauto.com                                          v0.3.1
+    www.pucauto.com                                          v0.3.2
 
     """)
-
-
-def wait(sec):
-    """Wait an explicit amount of seconds for page loads and interactions."""
-
-    time.sleep(sec)
 
 
 def wait_for_load():
     """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
     This function solves that by waiting for their loading spinner to dissappear."""
 
-    wait(1)
+    time.sleep(1)
     while True:
         try:
             loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
@@ -74,23 +67,6 @@ def turn_on_auto_matching():
     """Click the toggle on the /trades page to turn on auto matching."""
 
     DRIVER.find_element_by_css_selector("label.niceToggle").click()
-
-
-def sort_by_member():
-    """Click the Member header in the trades table to sort."""
-
-    DRIVER.find_element_by_css_selector("th.hMember").click()
-
-
-def confirm_trade(card):
-    """Click the confirm trade button in the trade details modal."""
-
-    try:
-        DRIVER.find_element_by_id("confirm-trade-button").click()
-    except Exception:
-        return
-
-    print("Sending {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
 def check_runtime():
@@ -129,11 +105,13 @@ def build_trades_dict(soup):
             "cards": [
                 {
                     "name": "Voice of Resurgence",
-                    "value": 2350
+                    "value": 2350,
+                    "href": https://pucatrade.com/trades/sendcard/38458273
                 },
                 {
                     "name": "Advent of the Wurm",
-                    "value": 56
+                    "value": 56,
+                    "href": https://pucatrade.com/trades/sendcard/63524523
                 },
                 ...
             ],
@@ -143,7 +121,8 @@ def build_trades_dict(soup):
             "cards": [
                 {
                     "name": "Thoughtseize",
-                    "value": 2050
+                    "value": 2050,
+                    "href": https://pucatrade.com/trades/sendcard/46234234
                 },
                 ...
             ],
@@ -156,30 +135,25 @@ def build_trades_dict(soup):
     trades = {}
 
     for row in soup.find_all("tr", id=lambda x: x and x.startswith('uc_')):
-        try:
-            member_name = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles")).text
-            member_points = int(row.find("td", class_="points").text)
-            card_name = row.find("a", class_="cl").text
-            card_value = int(row.find("td", class_="value").text)
-            card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
-            card = {
-                "name": card_name,
-                "value": card_value,
-                "href": card_href
+        member_name = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles")).text
+        member_points = int(row.find("td", class_="points").text)
+        card_name = row.find("a", class_="cl").text
+        card_value = int(row.find("td", class_="value").text)
+        card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
+        card = {
+            "name": card_name,
+            "value": card_value,
+            "href": card_href
+        }
+        if trades.get(member_name):
+            # Seen this member before in another row so just add another card
+            trades.get(member_name).get("cards").append(card)
+        else:
+            # First time seeing this member so set up the data structure
+            trades[member_name] = {
+                "cards": [card],
+                "points": member_points
             }
-            if trades.get(member_name):
-                # Seen this member before in another row so just add another card
-                trades.get(member_name).get("cards").append(card)
-            else:
-                # First time seeing this member so set up the data structure
-                trades[member_name] = {
-                    "cards": [card],
-                    "points": member_points
-                }
-        except Exception:
-            # Sometimes empty <tr>'s exist at the bottom of the table due to PucaTrade's infinite scroll.
-            # This precents from blowing up when it encounters an empty <tr>.
-            pass
 
     return trades
 
@@ -209,8 +183,16 @@ def complete_trades(valid_trades):
         # Sort the cards by highest value to make the most valuable trades first.
         sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
         for idx, card in enumerate(sorted_cards):
+            # Going directly to URLs instead of interacting with elements on the real page because huge trades lists
+            # are super slow.
+
+            # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
             DRIVER.get(card.get("href"))
+
+            # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
             DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+
+            print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
 def find_trades():
@@ -220,28 +202,23 @@ def find_trades():
     soup = BeautifulSoup(DRIVER.page_source, 'html.parser')
     trades = build_trades_dict(soup)
     valid_trades = filter_trades_dict(trades)
-    pprint(valid_trades)
     complete_trades(valid_trades)
 
 
-def main():
+if __name__ == "__main__":
     """Start Pucauto."""
 
     print_pucauto()
     print("Logging in...")
     log_in()
-    print("Turning on auto matching...")
     goto_trades()
+    wait_for_load()
+    print("Turning on auto matching...")
     turn_on_auto_matching()
     wait_for_load()
+    print("Finding trades...")
     while check_runtime():
-        print("{} Finding trades...".format(datetime.now()))
         goto_trades()
         wait_for_load()
         find_trades()
-
-# FIRE IT UP!
-main()
-
-# SHUT IT DOWN!
-DRIVER.close()
+    DRIVER.close()
