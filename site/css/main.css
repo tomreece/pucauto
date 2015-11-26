@@ -19,8 +19,8 @@ body {
     font-style: italic;
 }
 
-.testimonial span {
-    color: #bbbbbb;
+.subdued {
+    color: #dddddd;
 }
 
 .videoWrapper {
