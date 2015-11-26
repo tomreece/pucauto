@@ -6,13 +6,13 @@ import time
 import sys
 from selenium import webdriver
 from datetime import datetime
+from bs4 import BeautifulSoup
 
 PYVERSION = sys.version_info[0];
 print("Running with Python " + str(PYVERSION))
 
-CONFIG_FILE = open("config.json")
-CONFIG = json.load(CONFIG_FILE)
-CONFIG_FILE.close()
+with open("config.json") as config:
+    CONFIG = json.load(config)
 
 
 DRIVER = webdriver.Firefox()
@@ -32,15 +32,21 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    www.pucauto.com                                          v0.3.1
+    www.pucauto.com                                          v0.3.2
 
     """)
 
 
-def wait(sec):
-    """Wait an explicit amount of seconds for page loads and interactions."""
+def wait_for_load():
+    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
+    This function solves that by waiting for their loading spinner to dissappear."""
 
-    time.sleep(sec)
+    time.sleep(1)
+    while True:
+        try:
+            loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
+        except Exception:
+            break
 
 
 def log_in():
@@ -65,23 +71,6 @@ def turn_on_auto_matching():
     DRIVER.find_element_by_css_selector("label.niceToggle").click()
 
 
-def sort_by_member():
-    """Click the Member header in the trades table to sort."""
-
-    DRIVER.find_element_by_css_selector("th.hMember").click()
-
-
-def confirm_trade(card):
-    """Click the confirm trade button in the trade details modal."""
-
-    try:
-        DRIVER.find_element_by_id("confirm-trade-button").click()
-    except Exception:
-        return
-
-    print("Sending {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
-
-
 def check_runtime():
     """Check to see if the main execution loop should continue. Selenium and Firefox eat up more and more memory
     after long periods of running so this will stop Pucauto after a certain amount of time. If Pucauto was started with
@@ -104,13 +93,13 @@ def load_full_trade_list():
         DRIVER.execute_script("window.scrollBy(0, 5000);")
         wait_for_load()
         new_scroll_y = DRIVER.execute_script("return window.scrollY;")
-        if new_scroll_y == old_scroll_y:
+        if new_scroll_y == old_scroll_y or new_scroll_y < old_scroll_y:
             break
         else:
             old_scroll_y = new_scroll_y
 
 
-def build_trades_dict(rows):
+def build_trades_dict(soup):
     """Iterate through the rows in the table on the /trades page and build up a dictionary. Returns a dictionary like:
 
     {
@@ -118,11 +107,13 @@ def build_trades_dict(rows):
             "cards": [
                 {
                     "name": "Voice of Resurgence",
-                    "value": 2350
+                    "value": 2350,
+                    "href": https://pucatrade.com/trades/sendcard/38458273
                 },
                 {
                     "name": "Advent of the Wurm",
-                    "value": 56
+                    "value": 56,
+                    "href": https://pucatrade.com/trades/sendcard/63524523
                 },
                 ...
             ],
@@ -132,7 +123,8 @@ def build_trades_dict(rows):
             "cards": [
                 {
                     "name": "Thoughtseize",
-                    "value": 2050
+                    "value": 2050,
+                    "href": https://pucatrade.com/trades/sendcard/46234234
                 },
                 ...
             ],
@@ -144,29 +136,26 @@ def build_trades_dict(rows):
 
     trades = {}
 
-    for row in rows:
-        try:
-            member_name = row.find_element_by_css_selector("td.member a:nth-of-type(3)").text
-            member_points = int(row.find_element_by_css_selector("td.points").text)
-            card_name = row.find_element_by_css_selector(".cl").text
-            card_value = int(row.find_element_by_css_selector(".value").text)
-            card = {
-                "name": card_name,
-                "value": card_value
+    for row in soup.find_all("tr", id=lambda x: x and x.startswith("uc_")):
+        member_name = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles")).text
+        member_points = int(row.find("td", class_="points").text)
+        card_name = row.find("a", class_="cl").text
+        card_value = int(row.find("td", class_="value").text)
+        card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
+        card = {
+            "name": card_name,
+            "value": card_value,
+            "href": card_href
+        }
+        if trades.get(member_name):
+            # Seen this member before in another row so just add another card
+            trades.get(member_name).get("cards").append(card)
+        else:
+            # First time seeing this member so set up the data structure
+            trades[member_name] = {
+                "cards": [card],
+                "points": member_points
             }
-            if trades.get(member_name):
-                # Seen this member before in another row so just add another card
-                trades.get(member_name).get("cards").append(card)
-            else:
-                # First time seeing this member so set up the data structure
-                trades[member_name] = {
-                    "cards": [card],
-                    "points": member_points
-                }
-        except Exception:
-            # Sometimes empty <tr>'s exist at the bottom of the table due to PucaTrade's infinite scroll.
-            # This precents from blowing up when it encounters an empty <tr>.
-            pass
 
     return trades
 
@@ -204,71 +193,44 @@ def complete_trades(valid_trades):
     for member, v in trade_iter:
         cards = v.get("cards")
         # Sort the cards by highest value to make the most valuable trades first.
-        sorted_cards = sorted(cards, key=lambda k: k['value'], reverse=True)
+        sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
         for idx, card in enumerate(sorted_cards):
-            try:
-                # We have to select row by this sort of complicated XPATH because after a trade has been confirmed
-                # the table changes state because the confirmed trade was removed.
-                row_xpath = ("//tr[(td[2]//a[contains(., '{}')]) and (td[5]//a[contains(., '{}')])]"
-                    .format(card.get("name"), member))
-                row = DRIVER.find_element_by_xpath(row_xpath)
-                send_button = row.find_element_by_class_name("sendCard")
-                send_button.click()
-                wait(2)
-                confirm_trade(card)
-                wait(2)
-                DRIVER.find_element_by_css_selector(".fancybox-close").click()
-                wait(2)
-            except Exception:
-                if idx == 0:
-                    # Give up on this bundle if the first and highest value card fails
-                    break
-                else:
-                    continue
+            # Going directly to URLs instead of interacting with elements on the real page because huge trades lists
+            # are super slow.
+
+            # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
+            DRIVER.get(card.get("href"))
+
+            # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
+            DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+
+            print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
 def find_trades():
     """The special sauce. Read the docstrings for the individual functions to figure out how this works."""
 
     load_full_trade_list()
-    rows = DRIVER.find_elements_by_css_selector(".cards-show tbody tr")
-    trades = build_trades_dict(rows)
+    soup = BeautifulSoup(DRIVER.page_source, "html.parser")
+    trades = build_trades_dict(soup)
     valid_trades = filter_trades_dict(trades)
     complete_trades(valid_trades)
 
 
-def wait_for_load():
-    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
-    This function solves that by waiting for their loading spinner to dissappear."""
-
-    wait(5)
-    while True:
-        try:
-            loading_spinner = DRIVER.find_element_by_id("fancybox-loading")
-        except Exception:
-            break
-
-
-def main():
+if __name__ == "__main__":
     """Start Pucauto."""
 
     print_pucauto()
     print("Logging in...")
     log_in()
-    print("Turning on auto matching...")
     goto_trades()
-    turn_on_auto_matching()
     wait_for_load()
-    print("Sorting by member...")
-    sort_by_member()
+    print("Turning on auto matching...")
+    turn_on_auto_matching()
     wait_for_load()
     print("Finding trades...")
     while check_runtime():
         goto_trades()
+        wait_for_load()
         find_trades()
-
-# FIRE IT UP!
-main()
-
-# SHUT IT DOWN!
-DRIVER.close()
+    DRIVER.close()
