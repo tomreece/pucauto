@@ -96,6 +96,12 @@ see the code and know roughly what's happening even if you're not a developer.
 
 ### Changelog
 
+#### 2015-11-27 [v0.3.3](https://github.com/tomreece/pucauto/archive/v0.3.3.zip)
+* Fixed a bug where Pucauto may commit to send more copies of a card than you
+actually had on your Haves list.
+* Add a 10 second delay after accepting trades to adhere to PucaTrade's refresh
+limit.
+
 #### 2015-11-24 [v0.3.2](https://github.com/tomreece/pucauto/archive/v0.3.2.zip)
 * Use Beautiful Soup to parse the trades list to increase performance for large
 trades list. The difference is very significant.
