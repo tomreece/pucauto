@@ -90,16 +90,17 @@ page. You can see this happening in `pucauto.py`. Your username and password are
 not used for anything else. That's why this project is open source, so you can
 see the code and know roughly what's happening even if you're not a developer.
 
-##### This is too difficult for me, but the bot sounds useful. Can you run it for me?
-
-Yes. Check out http://www.pucauto.com/us.html then email me at
-tomreece@gmail.com to give it a try.
-
 ##### How can I contact you?
 
-[@tomreece](https://twitter.com/tomreece) or tomreece@gmail.com
+[@tomreece](https://twitter.com/tomreece) or [@pucautobot](https://twitter.com/pucautobot) or tomreece@gmail.com
 
 ### Changelog
+
+#### 2015-11-27 [v0.3.3](https://github.com/tomreece/pucauto/archive/v0.3.3.zip)
+* Fixed a bug where Pucauto may commit to send more copies of a card than you
+actually had on your Haves list.
+* Add a 10 second delay after accepting trades to adhere to PucaTrade's refresh
+limit.
 
 #### 2015-11-24 [v0.3.2](https://github.com/tomreece/pucauto/archive/v0.3.2.zip)
 * Use Beautiful Soup to parse the trades list to increase performance for large
