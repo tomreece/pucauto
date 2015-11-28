@@ -1,4 +1,4 @@
-<img src="http://pucauto.com/img/features.png" alt="pucauto features" width="50%"/>
+<p align="center"><img src="http://pucauto.com/img/features.png" alt="pucauto features" width="50%"/></p>
 
 Pucauto is a PucaTrade bot that will automatically accept trades for you.
 
