@@ -204,6 +204,8 @@ def complete_trades(highest_value_bundle):
             DRIVER.find_element_by_id("confirm-trade-button")
         except Exception:
             # Someone beat us to it or the member ran out of points
+            print("Failed to send {}. Either someone beat you to it or the member ran out of points."
+                .format(card.get("name")))
             continue
 
         # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
