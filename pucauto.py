@@ -3,6 +3,7 @@ from __future__ import print_function
 
 import json
 import time
+import six
 from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -165,7 +166,7 @@ def find_highest_value_bundle(trades):
     min_value = CONFIG.get("min_value")
     highest_value_bundle = None
 
-    for member, v in trades.iteritems():
+    for member, v in six.iteritems(trades):
         this_bundle_value = 0
         for card in v.get("cards"):
             this_bundle_value += card.get("value")
