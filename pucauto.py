@@ -29,7 +29,9 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    www.pucauto.com                                          v0.3.2
+    pucauto.com                                              v0.3.3
+    github.com/tomreece/pucauto
+    @pucautobot on Twitter
 
     """)
 
@@ -157,41 +159,56 @@ def build_trades_dict(soup):
     return trades
 
 
-def filter_trades_dict(trades):
-    """Iterate through the trades dictionary and build a new dictionary for any single trades or bundles above the
-    min_value config."""
+def find_highest_value_bundle(trades):
+    """Iterate through the trades dictionary and find the highest value bundle above the configured min_value."""
 
-    valid_trades = {}
+    min_value = CONFIG.get("min_value")
+    highest_value_bundle = None
 
     for member, v in trades.iteritems():
-        value = 0
+        this_bundle_value = 0
         for card in v.get("cards"):
-            value += card.get("value")
-        min_value = CONFIG.get("min_value")
-        if not min_value or (value >= min_value and v.get("points") >= min_value):
-            valid_trades[member] = v
+            this_bundle_value += card.get("value")
 
-    return valid_trades
+        # If no min_value set,
+        # or this bundle's value is above the min_value and this member has enough points
+        if not min_value or (this_bundle_value >= min_value and v.get("points") >= min_value):
+            if not highest_value_bundle or highest_value_bundle["value"] < this_bundle_value:
+                v["value"] = this_bundle_value
+                highest_value_bundle = v
+
+    return highest_value_bundle
 
 
-def complete_trades(valid_trades):
-    """Iterate through the valid_trades dictionary and complete the trades."""
+def complete_trades(highest_value_bundle):
+    """Iterate through the cards in highest_value_bundle and complete the trades."""
 
-    for member, v in valid_trades.iteritems():
-        cards = v.get("cards")
-        # Sort the cards by highest value to make the most valuable trades first.
-        sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
-        for idx, card in enumerate(sorted_cards):
-            # Going directly to URLs instead of interacting with elements on the real page because huge trades lists
-            # are super slow.
+    if not highest_value_bundle:
+        # No valid bundle was found, give up and restart the main loop
+        return
 
-            # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
-            DRIVER.get(card.get("href"))
+    cards = highest_value_bundle.get("cards")
+    # Sort the cards by highest value to make the most valuable trades first.
+    sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
 
-            # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
-            DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+    print("Found {} card(s) to trade...".format(len(sorted_cards)))
 
-            print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+    for card in sorted_cards:
+        # Going directly to URLs instead of interacting with elements on the real page because huge trades lists
+        # are super slow.
+
+        # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
+        DRIVER.get(card.get("href"))
+
+        try:
+            DRIVER.find_element_by_id("confirm-trade-button")
+        except Exception:
+            # Someone beat us to it or the member ran out of points
+            continue
+
+        # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
+        DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+        print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
 def find_trades():
@@ -200,8 +217,10 @@ def find_trades():
     load_full_trade_list()
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
     trades = build_trades_dict(soup)
-    valid_trades = filter_trades_dict(trades)
-    complete_trades(valid_trades)
+    highest_value_bundle = find_highest_value_bundle(trades)
+    complete_trades(highest_value_bundle)
+    # Slow down to not hit PucaTrade refresh limit
+    time.sleep(10)
 
 
 if __name__ == "__main__":
