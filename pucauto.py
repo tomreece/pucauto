@@ -8,6 +8,7 @@ from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+
 with open("config.json") as config:
     CONFIG = json.load(config)
 
