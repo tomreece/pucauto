@@ -100,6 +100,7 @@ def commit_to_send_card(card, add_on=False):
 
     # Then go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
     DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+
     if add_on:
         print("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
     else:
@@ -131,20 +132,21 @@ def find_and_accept_add_ons():
     load_full_trade_list()
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
-    for trader in unshipped:
-        add_ons = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x == trader)]
-        if add_ons:
-            found_add_ons = True
-        for row in add_ons:
-            card_name = row.find("a", class_="cl").text
-            card_value = int(row.find("td", class_="value").text)
-            card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
-            card = {
-                "name": card_name,
-                "value": card_value,
-                "href": card_href
-            }
-            commit_to_send_card(card, True)
+    add_ons = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x in unshipped)]
+
+    if add_ons:
+        found_add_ons = True
+
+    for row in add_ons:
+        card_name = row.find("a", class_="cl").text
+        card_value = int(row.find("td", class_="value").text)
+        card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
+        card = {
+            "name": card_name,
+            "value": card_value,
+            "href": card_href
+        }
+        commit_to_send_card(card, True)
 
     return found_add_ons
 
