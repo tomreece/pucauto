@@ -30,7 +30,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.3.3
+    pucauto.com                                              v0.4.0
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -82,6 +82,84 @@ def check_runtime():
         return (datetime.now() - START_TIME).total_seconds() / 60 / 60 < hours_to_run
     else:
         return True
+
+
+def commit_to_send_card(card, add_on=False):
+    """Commit to send a card when given a proper card dictionary containing href, name, and value keys."""
+
+    # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
+    DRIVER.get(card.get("href"))
+
+    try:
+        DRIVER.find_element_by_id("confirm-trade-button")
+    except Exception:
+        # Someone beat us to it or the member ran out of points
+        print("Failed to send {}. Either someone beat you to it or the member ran out of points."
+            .format(card.get("name")))
+        return
+
+    # Then go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
+    DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+
+    if add_on:
+        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
+    else:
+        print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+
+
+def find_and_send_add_ons():
+    """Go to the /trades/active page and build a list of members that have unshipped cards.
+    Then go to the /trades page and accept any new cards this member may want regardless of the
+    cards value because they are already being shipped to, so it makes sense to just ship any
+    more cards we're able.
+
+    Returns True if some add ons were found, False otherwise.
+    """
+
+    found_add_ons = False
+
+    # Go to the /trades/active page, filter the table by Unshipped, and grab the DOM
+    DRIVER.get("https://pucatrade.com/trades/active")
+    DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped\r')
+    soup = BeautifulSoup(DRIVER.page_source, "html.parser")
+
+    # Build up a set of unshipped traders, specifically urls to their profile for uniqueness
+    unshipped = set()
+    for a in soup.find_all("a", class_="trader"):
+        unshipped.add(a.get("href"))
+
+    # Now that we have some information, go to the trades page, load it all, and grab the DOM
+    goto_trades()
+    wait_for_load()
+    load_full_trade_list()
+    soup = BeautifulSoup(DRIVER.page_source, "html.parser")
+
+    # Find all rows containing traders from the unshipped set we found earlier
+    rows = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x in unshipped)]
+
+    if rows:
+        found_add_ons = True
+
+    cards = []
+
+    # Iterate through any rows we found and build up a list of add on cards
+    for row in rows:
+        card_name = row.find("a", class_="cl").text
+        card_value = int(row.find("td", class_="value").text)
+        card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
+        card = {
+            "name": card_name,
+            "value": card_value,
+            "href": card_href
+        }
+        cards.append(card)
+
+    # Sort by highest value to accept those add on cards first
+    sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+    for card in sorted_cards:
+        commit_to_send_card(card, True)
+
+    return found_add_ons
 
 
 def load_full_trade_list():
@@ -195,29 +273,18 @@ def complete_trades(highest_value_bundle):
     print("Found {} card(s) to trade...".format(len(sorted_cards)))
 
     for card in sorted_cards:
-        # Going directly to URLs instead of interacting with elements on the real page because huge trades lists
-        # are super slow.
-
-        # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
-        DRIVER.get(card.get("href"))
-
-        try:
-            DRIVER.find_element_by_id("confirm-trade-button")
-        except Exception:
-            # Someone beat us to it or the member ran out of points
-            print("Failed to send {}. Either someone beat you to it or the member ran out of points."
-                .format(card.get("name")))
-            continue
-
-        # Then we can go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
-        DRIVER.get(card.get("href").replace("sendcard", "confirm"))
-        print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        commit_to_send_card(card)
 
 
 def find_trades():
     """The special sauce. Read the docstrings for the individual functions to figure out how this works."""
 
-    load_full_trade_list()
+    if find_and_send_add_ons():
+        # If we found some add ons, we need to redo the work of loading the
+        # trades list for a fresh state
+        goto_trades()
+        wait_for_load()
+        load_full_trade_list()
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
     trades = build_trades_dict(soup)
     highest_value_bundle = find_highest_value_bundle(trades)
@@ -239,7 +306,5 @@ if __name__ == "__main__":
     wait_for_load()
     print("Finding trades...")
     while check_runtime():
-        goto_trades()
-        wait_for_load()
         find_trades()
     DRIVER.close()

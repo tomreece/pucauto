@@ -96,6 +96,11 @@ see the code and know roughly what's happening even if you're not a developer.
 
 ### Changelog
 
+#### 2015-11-30 [v0.4.0](https://github.com/tomreece/pucauto/archive/v0.4.0.zip)
+* Now Pucauto looks for add-on cards to any unshipped traders. This will help you
+send more cards to the same recipient, saving on stamps. This makes it important
+to mark your cards shipped as soon as you prepare and seal the envelope.
+
 #### 2015-11-27 [v0.3.3](https://github.com/tomreece/pucauto/archive/v0.3.3.zip)
 * Fixed a bug where Pucauto may commit to send more copies of a card than you
 actually had on your Haves list.
