@@ -107,7 +107,7 @@ def commit_to_send_card(card, add_on=False):
         print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
-def find_and_accept_add_ons():
+def find_and_send_add_ons():
     """Go to the /trades/active page and build a list of members that have unshipped cards.
     Then go to the /trades page and accept any new cards this member may want regardless of the
     cards value because they are already being shipped to, so it makes sense to just ship any
@@ -118,26 +118,32 @@ def find_and_accept_add_ons():
 
     found_add_ons = False
 
+    # Go to the /trades/active page, filter the table by Unshipped, and grab the DOM
     DRIVER.get("https://pucatrade.com/trades/active")
     DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped\r')
-
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
+    # Build up a set of unshipped traders, specifically urls to their profile for uniqueness
     unshipped = set()
     for a in soup.find_all("a", class_="trader"):
         unshipped.add(a.get("href"))
 
+    # Now that we have some information, go to the trades page, load it all, and grab the DOM
     goto_trades()
     wait_for_load()
     load_full_trade_list()
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
-    add_ons = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x in unshipped)]
+    # Find all rows containing traders from the unshipped set we found earlier
+    rows = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x in unshipped)]
 
-    if add_ons:
+    if rows:
         found_add_ons = True
 
-    for row in add_ons:
+    cards = []
+
+    # Iterate through any rows we found and build up a list of add on cards
+    for row in rows:
         card_name = row.find("a", class_="cl").text
         card_value = int(row.find("td", class_="value").text)
         card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
@@ -146,6 +152,11 @@ def find_and_accept_add_ons():
             "value": card_value,
             "href": card_href
         }
+        cards.append(card)
+
+    # Sort by highest value to accept those add on cards first
+    sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+    for card in sorted_cards:
         commit_to_send_card(card, True)
 
     return found_add_ons
@@ -268,7 +279,7 @@ def complete_trades(highest_value_bundle):
 def find_trades():
     """The special sauce. Read the docstrings for the individual functions to figure out how this works."""
 
-    if find_and_accept_add_ons():
+    if find_and_send_add_ons():
         # If we found some add ons, we need to redo the work of loading the
         # trades list for a fresh state
         goto_trades()
