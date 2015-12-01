@@ -45,6 +45,8 @@ when prompted.
  select 'Open command window here'.
 1. Run the command `python setup.py install` to install Selenium
 1. Do the same thing for [Beautiful Soup](http://www.crummy.com/software/BeautifulSoup/bs4/download/4.4/beautifulsoup4-4.4.1.tar.gz)
+1. And for [Six](https://pypi.python.org/pypi/six/)
+1. Sorry these Windows instructions are a bit rough. I need some help improving them because I don't have a Windows machine at the moment.
 
 ### Configuring
 
