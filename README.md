@@ -34,10 +34,10 @@ when prompted.
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
  or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip)
-1. Download Python 2 from https://www.python.org/downloads/
+1. Download Python from https://www.python.org/downloads/
 1. Install Python. **IMPORTANT:** Select the check box to associate Python with
  environment variables.
-1. Use 7zip or WinRar to expand the archive.
+1. You may be able to skip all of the following steps if this works for you while in the pucauto directory: `python -m pip install -r requirements.txt`
 1. Download Selenium from `https://pypi.python.org/pypi/selenium`. You want the
  file named selenium-2.48.0.tar.gz
 1. Extract the archive.
