@@ -16,15 +16,15 @@ other things like play Fallout 4, or sleep, or while you're at work.
 
 #### Prerequisites
 
-1. Git
-1. Python
-1. Pip
 1. Firefox
+1. Python 2.7
+1. Git (optional)
+1. Pip (usually comes with Python)
 
 #### Mac / Linux
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
- or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip)
+ or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
 1. Open Terminal.
 1. Go to the Pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password
@@ -33,21 +33,12 @@ when prompted.
 #### Windows
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
- or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip)
-1. Download Python from https://www.python.org/downloads/
-1. Install Python. **IMPORTANT:** Select the check box to associate Python with
- environment variables.
-1. You may be able to skip all of the following steps if this works for you while in the pucauto directory:  
-`python -m pip install -r requirements.txt`
-1. Download Selenium from `https://pypi.python.org/pypi/selenium`. You want the
- file named selenium-2.48.0.tar.gz
-1. Extract the archive.
-1. Inside the folder you should see `setup.py`. Shift + Right-Click, then
- select 'Open command window here'.
-1. Run the command `python setup.py install` to install Selenium
-1. Do the same thing for [Beautiful Soup](http://www.crummy.com/software/BeautifulSoup/bs4/download/4.4/beautifulsoup4-4.4.1.tar.gz)
-1. And for [Six](https://pypi.python.org/pypi/six/)
-1. Sorry these Windows instructions are a bit rough. I need some help improving them because I don't have a Windows machine at the moment.
+ or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
+1. Download Python 2.7.10 from https://www.python.org/downloads/
+1. Install Python 2.7.10 **IMPORTANT:** Select the check box to **Add python.exe to Path**.
+1. Unzip and open the Pucato folder.
+1. Shift + Right-Click, then select "Open command window here".
+1. Run the command `python -m pip install -r requirements.txt`
 
 ### Configuring
 
@@ -57,8 +48,7 @@ when prompted.
  the file. Be sure to keep the quotes around the values.
 3. Set the min_value to the lowest value you want Pucauto to accept. Cards or
  bundles under this value will not be traded.
-4. Save the file as `config.json`, _not_ `config.example.json`. This is for
- safety to prevent accidental commits of credentials to the public repository.
+4. Save the file as `config.json`, _not_ `config.example.json` or `config.json.txt`.
 5. You'll get an error on startup if you forget to save as `config.json`.
 
 ### Running
@@ -71,6 +61,10 @@ you can run Pucauto with:
 Pucauto will start running and you'll see it driving Firefox and outputting text
 in the Terminal.
 
+**IMPORTANT:** You shouldn't click things or do anything in the Firefox window that
+Pucauto opens because Pucauto expects it to be in a very specific state. You can open
+a new Firefox window to surf the interwebs.
+
 ### Upgrading
 
 Pucauto is still under development and valuable new features are being added to
@@ -78,9 +72,9 @@ make trading even better. Come back to this page occasionally and check out the
 Changelog at the bottom to learn about new features. If an update happens you
 can upgrade by:
 
-* If you downloaded the .zip, it's probably easiest to just delete your Pucauto
- folder and re-download the new zip. You shouldn't have to follow the full
- installation instructions again.
+* If you downloaded the .zip, it's probably easiest to just move your config.json
+ file to your desktop, delete your Pucauto folder and re-download the new zip.
+ You don't have to follow the full installation instructions again.
 * If you cloned the repository, you probably know how to use git to fetch the
  most recent changes so I'll leave it up to you.
 
