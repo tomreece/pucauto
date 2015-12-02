@@ -38,8 +38,7 @@ def print_pucauto():
 
 
 def wait_for_load():
-    """Holy crap I had no idea users could have so many cards on their Haves list and cause PucaTrade to crawl.
-    This function solves that by waiting for their loading spinner to dissappear."""
+    """Wait for PucaTrade's loading spinner to dissappear."""
 
     time.sleep(1)
     while True:
@@ -50,7 +49,7 @@ def wait_for_load():
 
 
 def log_in():
-    """Navigate to pucatrade.com and log in using credentials from config."""
+    """Navigate to pucatrade.com and log in using credentials from CONFIG."""
 
     DRIVER.get("http://www.pucatrade.com")
     home_login_div = DRIVER.find_element_by_id("home-login")
@@ -72,10 +71,14 @@ def turn_on_auto_matching():
 
 
 def check_runtime():
-    """Check to see if the main execution loop should continue. Selenium and Firefox eat up more and more memory
-    after long periods of running so this will stop Pucauto after a certain amount of time. If Pucauto was started with
-    the startup.sh script it will automatically restart itself again. I typically run my instance for 4 hours between
-    restarts on my 2GB RAM cloud server."""
+    """Return True if the main execution loop should continue.
+
+    Selenium and Firefox eat up more and more memory after long periods of
+    running so this will stop Pucauto after a certain amount of time. If Pucauto
+    was started with the startup.sh script it will automatically restart itself
+    again. I typically run my instance for 2 hours between restarts on my 2GB
+    RAM cloud server.
+    """
 
     hours_to_run = CONFIG.get("hours_to_run")
     if hours_to_run:
@@ -85,9 +88,14 @@ def check_runtime():
 
 
 def commit_to_send_card(card, add_on=False):
-    """Commit to send a card when given a proper card dictionary containing href, name, and value keys."""
+    """Commit to send a card.
 
-    # Go to the https://pucatrade.com/trades/sendcard/******* page first to secure the trade.
+    Args:
+    card   - A dictionary with href, name, and value keys
+    add_on - True if this card is an add on, False if it's part of a bundle
+    """
+
+    # Go to the /trades/sendcard/******* page first to secure the trade
     DRIVER.get(card.get("href"))
 
     try:
@@ -97,7 +105,7 @@ def commit_to_send_card(card, add_on=False):
         print("Failed to send {}. Reason: {}".format(card.get("name"), reason))
         return
 
-    # Then go to the https://pucatrade.com/trades/confirm/******* page to confirm the trade.
+    # Then go to the /trades/confirm/******* page to confirm the trade
     DRIVER.get(card.get("href").replace("sendcard", "confirm"))
 
     if add_on:
@@ -107,27 +115,23 @@ def commit_to_send_card(card, add_on=False):
 
 
 def find_and_send_add_ons():
-    """Go to the /trades/active page and build a list of members that have unshipped cards.
-    Then go to the /trades page and accept any new cards this member may want regardless of the
-    cards value because they are already being shipped to, so it makes sense to just ship any
-    more cards we're able.
+    """Build a list of members that have unshipped cards and then send them any
+    new cards that they may want. Card value is ignored because they are already
+    being shipped to. So it's fine to add any and all cards on.
 
-    Returns True if some add ons were found, False otherwise.
+    Returns True if any add on trades were found, False otherwise.
     """
 
     found_add_ons = False
 
-    # Go to the /trades/active page, filter the table by Unshipped, and grab the DOM
     DRIVER.get("https://pucatrade.com/trades/active")
     DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped\r')
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
-    # Build up a set of unshipped traders, specifically urls to their profile for uniqueness
     unshipped = set()
     for a in soup.find_all("a", class_="trader"):
         unshipped.add(a.get("href"))
 
-    # Now that we have some information, go to the trades page, load it all, and grab the DOM
     goto_trades()
     wait_for_load()
     load_full_trade_list()
@@ -141,7 +145,6 @@ def find_and_send_add_ons():
 
     cards = []
 
-    # Iterate through any rows we found and build up a list of add on cards
     for row in rows:
         card_name = row.find("a", class_="cl").text
         card_value = int(row.find("td", class_="value").text)
@@ -153,7 +156,7 @@ def find_and_send_add_ons():
         }
         cards.append(card)
 
-    # Sort by highest value to accept those add on cards first
+    # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
     for card in sorted_cards:
         commit_to_send_card(card, True)
@@ -162,8 +165,10 @@ def find_and_send_add_ons():
 
 
 def load_full_trade_list():
-    """Scroll to the bottom of the page until we can't scroll any further. PucaTrade's /trades page implements an
-    infinite scroll table. Without this function, we could only see a portion of the cards available for trade."""
+    """Scroll to the bottom of the page until we can't scroll any further.
+    PucaTrade's /trades page implements an infinite scroll table. Without this
+    function, we would only see a portion of the cards available for trade.
+    """
 
     old_scroll_y = 0
     while True:
@@ -177,7 +182,13 @@ def load_full_trade_list():
 
 
 def build_trades_dict(soup):
-    """Iterate through the rows in the table on the /trades page and build up a dictionary. Returns a dictionary like:
+    """Iterate through the rows in the table on the /trades page and build up a
+    dictionary.
+
+    Args:
+    soup - A BeautifulSoup instance of the page DOM
+
+    Returns a dictionary like:
 
     {
         "Philip J Fry": {
@@ -238,7 +249,15 @@ def build_trades_dict(soup):
 
 
 def find_highest_value_bundle(trades):
-    """Iterate through the trades dictionary and find the highest value bundle above the configured min_value."""
+    """Iterate through the trades dictionary and find the highest value bundle
+    above the CONFIG min_value.
+
+    Args:
+    trades - The result dictionary from build_trades_dict
+
+    Returns the highest value bundle, which is a dictionary, specifically the
+    value of a key from the trades dictionary.
+    """
 
     min_value = CONFIG.get("min_value")
     highest_value_bundle = None
@@ -249,7 +268,8 @@ def find_highest_value_bundle(trades):
             this_bundle_value += card.get("value")
 
         # If no min_value set,
-        # or this bundle's value is above the min_value and this member has enough points
+        # or this bundle's value is above the min_value
+        #    and this member has enough points
         if not min_value or (this_bundle_value >= min_value and v.get("points") >= min_value):
             if not highest_value_bundle or highest_value_bundle["value"] < this_bundle_value:
                 v["value"] = this_bundle_value
@@ -259,7 +279,11 @@ def find_highest_value_bundle(trades):
 
 
 def complete_trades(highest_value_bundle):
-    """Iterate through the cards in highest_value_bundle and complete the trades."""
+    """Iterate through the cards in the bundle and complete the trades.
+
+    Args:
+    highest_value_bundle - The result dictionary from find_highest_value_bundle
+    """
 
     if not highest_value_bundle:
         # No valid bundle was found, give up and restart the main loop
@@ -276,7 +300,8 @@ def complete_trades(highest_value_bundle):
 
 
 def find_trades():
-    """The special sauce. Read the docstrings for the individual functions to figure out how this works."""
+    """The special sauce. Read the docstrings for the individual functions to
+    figure out how this works."""
 
     if find_and_send_add_ons():
         # If we found some add ons, we need to redo the work of loading the
