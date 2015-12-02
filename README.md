@@ -10,7 +10,9 @@ All you have to do is check your Sending page and mail them out.
 You can leave Pucauto running in the background of your computer while you do
 other things like play Fallout 4, or sleep, or while you're at work.
 
-[Donate To Help Support Pucauto Development](https://www.dwolla.com/hub/pucauto)
+### Help Support Pucauto Development
+
+[Donate via Dwolla](https://www.dwolla.com/hub/pucauto) or [Donate via Paypal](https://www.paypal.com/cgi-bin/webscr?business=tomreece@gmail.com&cmd=_xclick&currency_code=USD&amount=5&item_name=Pucauto)
 
 ### Installation
 
