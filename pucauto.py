@@ -225,7 +225,9 @@ def build_trades_dict(soup):
     trades = {}
 
     for row in soup.find_all("tr", id=lambda x: x and x.startswith("uc_")):
-        member_name = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles")).text
+        member_link = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles"))
+        member_name = member_link.text.strip()
+        member_id = member_link["href"].replace("/profiles/show/", "")
         member_points = int(row.find("td", class_="points").text)
         card_name = row.find("a", class_="cl").text
         card_value = int(row.find("td", class_="value").text)
@@ -235,13 +237,14 @@ def build_trades_dict(soup):
             "value": card_value,
             "href": card_href
         }
-        if trades.get(member_name):
+        if trades.get(member_id):
             # Seen this member before in another row so just add another card
-            trades.get(member_name).get("cards").append(card)
+            trades[member_id]["cards"].append(card)
         else:
             # First time seeing this member so set up the data structure
-            trades[member_name] = {
+            trades[member_id] = {
                 "cards": [card],
+                "name": member_name,
                 "points": member_points
             }
 
