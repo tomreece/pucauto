@@ -15,12 +15,26 @@ body {
     margin-bottom: 10px;
 }
 
-.testimonial {
+.testimonial, .thanks {
     font-style: italic;
 }
 
 .subdued {
     color: #dddddd;
+}
+
+.paypal-button {
+    border: 0px;
+}
+
+.donate-header {
+    margin: 0px 0px 2px 0px;
+    font-size: 12px;
+    font-style: italic;
+}
+
+.paypal {
+    margin-top: 10px;
 }
 
 /* BOOTSTRAP OVERRIDES */
