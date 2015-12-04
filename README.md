@@ -95,6 +95,15 @@ see the code and know roughly what's happening even if you're not a developer.
 
 ### Changelog
 
+#### 2015-12-03 [v0.4.1](https://github.com/tomreece/pucauto/archive/v0.4.1.zip)
+* Most importantly, speed up bundle finding by only loading enough of the trade
+list to reach a bottom member points value that exceeds `min_value` in config.json
+* You can now configure add on searching:
+* Turn off add on searching all-together by setting `find_add_ons` to `false` in
+config.json
+* Since checking for trade add ons takes a bit of time, configure how often to
+check with the `minutes_between_add_ons_check` value in config.json.
+
 #### 2015-11-30 [v0.4.0](https://github.com/tomreece/pucauto/archive/v0.4.0.zip)
 * Now Pucauto looks for add-on cards to any unshipped traders. This will help you
 send more cards to the same recipient, saving on stamps. This makes it important

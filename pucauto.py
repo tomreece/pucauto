@@ -31,7 +31,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.0
+    pucauto.com                                              v0.4.1
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
