@@ -17,6 +17,7 @@ DRIVER = webdriver.Firefox()
 
 
 START_TIME = datetime.now()
+LAST_ADD_ON_CHECK = START_TIME
 
 
 def print_pucauto():
@@ -30,7 +31,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.0
+    pucauto.com                                              v0.4.1
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -70,6 +71,12 @@ def turn_on_auto_matching():
     DRIVER.find_element_by_css_selector("label.niceToggle").click()
 
 
+def sort_by_member_points():
+    """Click the Member Points table header to sort by member points (desc)."""
+
+    DRIVER.find_element_by_css_selector("th[title='user_points']").click()
+
+
 def check_runtime():
     """Return True if the main execution loop should continue.
 
@@ -87,8 +94,18 @@ def check_runtime():
         return True
 
 
-def commit_to_send_card(card, add_on=False):
-    """Commit to send a card.
+def should_check_add_ons():
+    """Return True if we should check for add on trades."""
+
+    minutes_between_add_ons_check = CONFIG.get("minutes_between_add_ons_check")
+    if minutes_between_add_ons_check:
+        return (datetime.now() - LAST_ADD_ON_CHECK).total_seconds() / 60 >= minutes_between_add_ons_check
+    else:
+        return True
+
+
+def send_card(card, add_on=False):
+    """Send a card.
 
     Args:
     card   - A dictionary with href, name, and value keys
@@ -118,14 +135,10 @@ def find_and_send_add_ons():
     """Build a list of members that have unshipped cards and then send them any
     new cards that they may want. Card value is ignored because they are already
     being shipped to. So it's fine to add any and all cards on.
-
-    Returns True if any add on trades were found, False otherwise.
     """
 
-    found_add_ons = False
-
     DRIVER.get("https://pucatrade.com/trades/active")
-    DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped\r')
+    DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped')
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
     unshipped = set()
@@ -134,14 +147,11 @@ def find_and_send_add_ons():
 
     goto_trades()
     wait_for_load()
-    load_full_trade_list()
+    load_trade_list()
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
     # Find all rows containing traders from the unshipped set we found earlier
     rows = [r.find_parent("tr") for r in soup.find_all("a", href=lambda x: x and x in unshipped)]
-
-    if rows:
-        found_add_ons = True
 
     cards = []
 
@@ -159,22 +169,36 @@ def find_and_send_add_ons():
     # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
     for card in sorted_cards:
-        commit_to_send_card(card, True)
-
-    return found_add_ons
+        send_card(card, True)
 
 
-def load_full_trade_list():
+def load_trade_list(partial=False):
     """Scroll to the bottom of the page until we can't scroll any further.
     PucaTrade's /trades page implements an infinite scroll table. Without this
     function, we would only see a portion of the cards available for trade.
+
+    Args:
+    partial - Set to True to only load rows above min_value. This increases
+              speed for trades with large trade lists.
     """
 
     old_scroll_y = 0
     while True:
+        if partial:
+            try:
+                lowest_visible_points = int(
+                    DRIVER.find_element_by_css_selector(".cards-show tbody tr:last-of-type td.points").text)
+            except:
+                # We reached the bottom
+                lowest_visible_points = -1
+            if lowest_visible_points < CONFIG["min_value"]:
+                # Stop loading because there are no more members with points above min_value
+                break
+
         DRIVER.execute_script("window.scrollBy(0, 5000);")
         wait_for_load()
         new_scroll_y = DRIVER.execute_script("return window.scrollY;")
+
         if new_scroll_y == old_scroll_y or new_scroll_y < old_scroll_y:
             break
         else:
@@ -299,25 +323,27 @@ def complete_trades(highest_value_bundle):
     print("Found {} card(s) to trade...".format(len(sorted_cards)))
 
     for card in sorted_cards:
-        commit_to_send_card(card)
+        send_card(card)
 
 
 def find_trades():
     """The special sauce. Read the docstrings for the individual functions to
     figure out how this works."""
 
-    if find_and_send_add_ons():
-        # If we found some add ons, we need to redo the work of loading the
-        # trades list for a fresh state
-        goto_trades()
-        wait_for_load()
-        load_full_trade_list()
+    global LAST_ADD_ON_CHECK
+
+    if CONFIG.get("find_add_ons") and should_check_add_ons():
+        find_and_send_add_ons()
+        LAST_ADD_ON_CHECK = datetime.now()
+    goto_trades()
+    wait_for_load()
+    load_trade_list(True)
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
     trades = build_trades_dict(soup)
     highest_value_bundle = find_highest_value_bundle(trades)
     complete_trades(highest_value_bundle)
     # Slow down to not hit PucaTrade refresh limit
-    time.sleep(10)
+    time.sleep(5)
 
 
 if __name__ == "__main__":
@@ -330,6 +356,8 @@ if __name__ == "__main__":
     wait_for_load()
     print("Turning on auto matching...")
     turn_on_auto_matching()
+    wait_for_load()
+    sort_by_member_points()
     wait_for_load()
     print("Finding trades...")
     while check_runtime():
