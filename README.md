@@ -98,7 +98,7 @@ see the code and know roughly what's happening even if you're not a developer.
 #### 2015-12-03 [v0.4.1](https://github.com/tomreece/pucauto/archive/v0.4.1.zip)
 * Most importantly, speed up bundle finding by only loading enough of the trade
 list to reach a bottom member whose points exceed `min_value` in config.json
-* You can now configure add on searching:
+* You can now configure add on searching. See the `config.example.json` file for the new options available to you.
 * Turn off add on searching all-together by setting `find_add_ons` to `false` in
 config.json
 * Since checking for trade add ons takes a bit of time, configure how often to
