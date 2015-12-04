@@ -103,6 +103,8 @@ list to reach a bottom member points value that exceeds `min_value` in config.js
 config.json
 * Since checking for trade add ons takes a bit of time, configure how often to
 check with the `minutes_between_add_ons_check` value in config.json.
+* Fix a bug where two users with the exact same name, e.g "Matt", would be
+considered the same bundle recipient. Now unique profile IDs are used instead.
 
 #### 2015-11-30 [v0.4.0](https://github.com/tomreece/pucauto/archive/v0.4.0.zip)
 * Now Pucauto looks for add-on cards to any unshipped traders. This will help you
