@@ -318,7 +318,9 @@ def complete_trades(highest_value_bundle):
 
     member_name = highest_value_bundle[1]["name"]
     member_points = highest_value_bundle[1]["points"]
-    print("Found {} card(s) to trade to {} who has {} points...".format(len(sorted_cards), member_name, member_points))
+    bundle_value = highest_value_bundle[1]["value"]
+    print("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
+        len(sorted_cards), bundle_value, member_name, member_points))
 
     for card in sorted_cards:
         send_card(card)
