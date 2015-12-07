@@ -110,25 +110,34 @@ def send_card(card, add_on=False):
     Args:
     card   - A dictionary with href, name, and value keys
     add_on - True if this card is an add on, False if it's part of a bundle
+
+    Returns True if the card was sent, False otherwise.
     """
 
     # Go to the /trades/sendcard/******* page first to secure the trade
-    DRIVER.get(card.get("href"))
+    DRIVER.get(card["href"])
 
     try:
         DRIVER.find_element_by_id("confirm-trade-button")
     except Exception:
-        reason = DRIVER.find_element_by_tag_name("h3").text
-        print("Failed to send {}. Reason: {}".format(card.get("name"), reason))
-        return
+        if not add_on:
+            reason = DRIVER.find_element_by_tag_name("h3").text
+            # Indented for readability because this is part of a bundle and there
+            # are header/footer messages
+            print("  Failed to send {}. Reason: {}".format(card["name"], reason))
+        return False
 
     # Then go to the /trades/confirm/******* page to confirm the trade
-    DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+    DRIVER.get(card["href"].replace("sendcard", "confirm"))
 
     if add_on:
-        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
     else:
-        print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        # Indented for readability because this is part of a bundle and there
+        # are header/footer messages
+        print("  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
+
+    return True
 
 
 def find_and_send_add_ons():
@@ -322,8 +331,16 @@ def complete_trades(highest_value_bundle):
     print("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
         len(sorted_cards), bundle_value, member_name, member_points))
 
+    success_count = 0
+    success_value = 0
     for card in sorted_cards:
-        send_card(card)
+        if send_card(card):
+            success_value += card["value"]
+            success_count += 1
+
+    print("Successfully sent {} out of {} cards worth {} points!".format(
+        success_count, len(sorted_cards), success_value))
+
 
 
 def find_trades():
