@@ -249,10 +249,13 @@ def build_trades_dict(soup):
     trades = {}
 
     for row in soup.find_all("tr", id=lambda x: x and x.startswith("uc_")):
+        member_points = int(row.find("td", class_="points").text)
+        if member_points < CONFIG["min_value"]:
+            # This member doesn't have enough points so move on to next row
+            continue
         member_link = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles"))
         member_name = member_link.text.strip()
         member_id = member_link["href"].replace("/profiles/show/", "")
-        member_points = int(row.find("td", class_="points").text)
         card_name = row.find("a", class_="cl").text
         card_value = int(row.find("td", class_="value").text)
         card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
@@ -264,63 +267,58 @@ def build_trades_dict(soup):
         if trades.get(member_id):
             # Seen this member before in another row so just add another card
             trades[member_id]["cards"].append(card)
+            trades[member_id]["value"] += card_value
         else:
             # First time seeing this member so set up the data structure
             trades[member_id] = {
                 "cards": [card],
                 "name": member_name,
-                "points": member_points
+                "points": member_points,
+                "value": card_value
             }
 
     return trades
 
 
 def find_highest_value_bundle(trades):
-    """Iterate through the trades dictionary and find the highest value bundle
-    above the CONFIG min_value.
+    """Find the highest value bundle in the trades dictionary.
 
     Args:
     trades - The result dictionary from build_trades_dict
 
-    Returns the highest value bundle, which is a dictionary, specifically the
-    value of a key from the trades dictionary.
+    Returns the highest value bundle, which is a tuple of the (k, v) from
+    trades.
     """
 
-    min_value = CONFIG.get("min_value")
-    highest_value_bundle = None
+    if len(trades) == 0:
+        return None
 
-    for member, v in six.iteritems(trades):
-        this_bundle_value = 0
-        for card in v.get("cards"):
-            this_bundle_value += card.get("value")
+    highest_value_bundle = max(six.iteritems(trades), key=lambda x: x[1]["value"])
 
-        # If no min_value set,
-        # or this bundle's value is above the min_value
-        #    and this member has enough points
-        if not min_value or (this_bundle_value >= min_value and v.get("points") >= min_value):
-            if not highest_value_bundle or highest_value_bundle["value"] < this_bundle_value:
-                v["value"] = this_bundle_value
-                highest_value_bundle = v
-
-    return highest_value_bundle
+    if highest_value_bundle[1]["value"] >= CONFIG["min_value"]:
+        return highest_value_bundle
+    else:
+        return None
 
 
 def complete_trades(highest_value_bundle):
-    """Iterate through the cards in the bundle and complete the trades.
+    """Sort the cards by highest value first and then send them all.
 
     Args:
-    highest_value_bundle - The result dictionary from find_highest_value_bundle
+    highest_value_bundle - The result tuple from find_highest_value_bundle
     """
 
     if not highest_value_bundle:
         # No valid bundle was found, give up and restart the main loop
         return
 
-    cards = highest_value_bundle.get("cards")
+    cards = highest_value_bundle[1]["cards"]
     # Sort the cards by highest value to make the most valuable trades first.
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
 
-    print("Found {} card(s) to trade...".format(len(sorted_cards)))
+    member_name = highest_value_bundle[1]["name"]
+    member_points = highest_value_bundle[1]["points"]
+    print("Found {} card(s) to trade to {} who has {} points...".format(len(sorted_cards), member_name, member_points))
 
     for card in sorted_cards:
         send_card(card)
