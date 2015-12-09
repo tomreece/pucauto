@@ -1,5 +1,6 @@
 import logging
 import logging.config
+import sys
 
 # much of this taken from http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
 # reference -- https://docs.python.org/2/library/logging.config.html
@@ -72,4 +73,9 @@ def get_default_logger(name):
     logger = logging.getLogger(name)
     logging.getLogger("selenium").setLevel(logging.WARNING)
     logger.setLevel(logging.DEBUG)
+    def excepthook(excType, excValue, traceback, logger=logger):
+        logger.error("Logging an uncaught exception",
+                     exc_info=(excType, excValue, traceback))
+
+    sys.excepthook = excepthook
     return logger
