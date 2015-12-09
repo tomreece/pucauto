@@ -227,7 +227,7 @@ def build_trades_dict(soup):
     Returns a dictionary like:
 
     {
-        "Philip J Fry": {
+        "1984581": {
             "cards": [
                 {
                     "name": "Voice of Resurgence",
@@ -241,18 +241,9 @@ def build_trades_dict(soup):
                 },
                 ...
             ],
-            "points": 9001
-        },
-        "Doctor John Zoidberg": {
-            "cards": [
-                {
-                    "name": "Thoughtseize",
-                    "value": 2050,
-                    "href": https://pucatrade.com/trades/sendcard/46234234
-                },
-                ...
-            ],
-            "points": 100
+            "name": "Philip J. Fry",
+            "points": 9001,
+            "value": 2406
         },
         ...
     }
