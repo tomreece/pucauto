@@ -148,6 +148,9 @@ def find_and_send_add_ons():
 
     DRIVER.get("https://pucatrade.com/trades/active")
     DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped')
+    # Wait a bit for the DOM to update after filtering
+    time.sleep(5)
+
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
     unshipped = set()
