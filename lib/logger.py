@@ -1,11 +1,6 @@
 import logging
 import logging.config
 
-class SeleniumFilter(logging.Filter):
-    def filter(self, record):
-        selenium_log = 'selenium.webdriver.remote.remote_connection'
-        return selenium_log not in record.getMessage()
-
 # much of this taken from http://victorlin.me/posts/2012/08/26/good-logging-practice-in-python
 # reference -- https://docs.python.org/2/library/logging.config.html
 logging.config.dictConfig({
@@ -75,6 +70,6 @@ logging.config.dictConfig({
 def get_default_logger(name):
     """ Unless you have a good reason not to, pass in `__name__` """
     logger = logging.getLogger(name)
-    logger.addFilter(SeleniumFilter())
+    logging.getLogger("selenium").setLevel(logging.WARNING)
     logger.setLevel(logging.DEBUG)
     return logger
