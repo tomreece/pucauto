@@ -29,28 +29,8 @@ logging.config.dictConfig({
             "level": "DEBUG",
             "formatter": "simple",
             "filename": "debug.log",
-            "maxBytes": 400000,
-            "backupCount": 20,
-            "encoding": "utf8"
-        },
-
-        "info_file_handler": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "INFO",
-            "formatter": "simple",
-            "filename": "info.log",
-            "maxBytes": 100000,
-            "backupCount": 20,
-            "encoding": "utf8"
-        },
-
-        "error_file_handler": {
-            "class": "logging.handlers.RotatingFileHandler",
-            "level": "ERROR",
-            "formatter": "simple",
-            "filename": "error.log",
-            "maxBytes": 50000,
-            "backupCount": 20,
+            "maxBytes": 2*1024*1024,
+            "backupCount": 5,
             "encoding": "utf8"
         }
     },
@@ -64,7 +44,7 @@ logging.config.dictConfig({
 
     "root": {
         "level": "DEBUG",
-        "handlers": ["debug_file_handler", "info_file_handler", "error_file_handler"]
+        "handlers": ["debug_file_handler"]
     }
 })
 
