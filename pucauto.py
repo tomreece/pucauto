@@ -8,11 +8,12 @@ from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
 
+from lib import logger
 
 with open("config.json") as config:
     CONFIG = json.load(config)
 
-
+LOGGER = logger.get_default_logger(__name__)
 DRIVER = webdriver.Firefox()
 
 
@@ -22,7 +23,7 @@ LAST_ADD_ON_CHECK = START_TIME
 
 def print_pucauto():
     """Print logo and version number."""
-
+    # avoid writing the banner to anyplace but the console...
     print("""
      _______  __   __  _______  _______  __   __  _______  _______
     |       ||  | |  ||       ||   _   ||  | |  ||       ||       |
@@ -119,16 +120,16 @@ def send_card(card, add_on=False):
         DRIVER.find_element_by_id("confirm-trade-button")
     except Exception:
         reason = DRIVER.find_element_by_tag_name("h3").text
-        print("Failed to send {}. Reason: {}".format(card.get("name"), reason))
+        LOGGER.info("Failed to send {}. Reason: {}".format(card.get("name"), reason))
         return
 
     # Then go to the /trades/confirm/******* page to confirm the trade
     DRIVER.get(card.get("href").replace("sendcard", "confirm"))
 
     if add_on:
-        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        LOGGER.info("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
     else:
-        print("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        LOGGER.info("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
 
 
 def find_and_send_add_ons():
@@ -320,7 +321,7 @@ def complete_trades(highest_value_bundle):
     # Sort the cards by highest value to make the most valuable trades first.
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
 
-    print("Found {} card(s) to trade...".format(len(sorted_cards)))
+    LOGGER.info("Found {} card(s) to trade...".format(len(sorted_cards)))
 
     for card in sorted_cards:
         send_card(card)
@@ -350,16 +351,16 @@ if __name__ == "__main__":
     """Start Pucauto."""
 
     print_pucauto()
-    print("Logging in...")
+    LOGGER.info("Logging in...")
     log_in()
     goto_trades()
     wait_for_load()
-    print("Turning on auto matching...")
+    LOGGER.info("Turning on auto matching...")
     turn_on_auto_matching()
     wait_for_load()
     sort_by_member_points()
     wait_for_load()
-    print("Finding trades...")
+    LOGGER.info("Finding trades...")
     while check_runtime():
         find_trades()
     DRIVER.close()

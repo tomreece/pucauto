@@ -1,4 +1,10 @@
 venv
+*.pyc
 .DS_Store
 config.json
 *~
+
+# logs
+error*.log
+info*.log
+debug*.log
