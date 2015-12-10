@@ -4,14 +4,16 @@ from __future__ import print_function
 import json
 import time
 import six
+import pprint
 from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
-
 from lib import logger
+
 
 with open("config.json") as config:
     CONFIG = json.load(config)
+
 
 LOGGER = logger.get_default_logger(__name__)
 DRIVER = webdriver.Firefox()
@@ -23,7 +25,8 @@ LAST_ADD_ON_CHECK = START_TIME
 
 def print_pucauto():
     """Print logo and version number."""
-    # avoid writing the banner to anyplace but the console...
+
+    # Using print instead of LOGGER so this doesn't show up in logs
     print("""
      _______  __   __  _______  _______  __   __  _______  _______
     |       ||  | |  ||       ||   _   ||  | |  ||       ||       |
@@ -158,6 +161,8 @@ def find_and_send_add_ons():
     for a in soup.find_all("a", class_="trader"):
         unshipped.add(a.get("href"))
 
+    LOGGER.debug("Unshipped members:\n{}".format(pprint.pformat(unshipped)))
+
     goto_trades()
     wait_for_load()
     load_trade_list()
@@ -181,6 +186,9 @@ def find_and_send_add_ons():
 
     # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+
+    LOGGER.debug("Possible addons:\n{}".format(pprint.pformat(sorted_cards)))
+
     for card in sorted_cards:
         send_card(card, True)
 
@@ -191,16 +199,18 @@ def load_trade_list(partial=False):
     function, we would only see a portion of the cards available for trade.
 
     Args:
-    partial - Set to True to only load rows above min_value. This increases
-              speed for trades with large trade lists.
+    partial - When True, only loads rows above min_value, thus speeding up
+              this function
     """
 
     old_scroll_y = 0
     while True:
+        LOGGER.debug("Scrolling trades table")
         if partial:
             try:
                 lowest_visible_points = int(
                     DRIVER.find_element_by_css_selector(".cards-show tbody tr:last-of-type td.points").text)
+                LOGGER.debug("Lowest member points visible in trades table: {}".format(lowest_visible_points))
             except:
                 # We reached the bottom
                 lowest_visible_points = -1
@@ -216,6 +226,7 @@ def load_trade_list(partial=False):
             break
         else:
             old_scroll_y = new_scroll_y
+    LOGGER.debug("Finished scrolling trades table")
 
 
 def build_trades_dict(soup):
@@ -299,6 +310,8 @@ def find_highest_value_bundle(trades):
 
     highest_value_bundle = max(six.iteritems(trades), key=lambda x: x[1]["value"])
 
+    LOGGER.debug("Highest value bundle:\n{}".format(pprint.pformat(highest_value_bundle)))
+
     if highest_value_bundle[1]["value"] >= CONFIG["min_value"]:
         return highest_value_bundle
     else:
@@ -345,8 +358,10 @@ def find_trades():
     global LAST_ADD_ON_CHECK
 
     if CONFIG.get("find_add_ons") and should_check_add_ons():
+        LOGGER.debug("Looking for add ons...")
         find_and_send_add_ons()
         LAST_ADD_ON_CHECK = datetime.now()
+    LOGGER.debug("Looking for bundles...")
     goto_trades()
     wait_for_load()
     load_trade_list(True)
