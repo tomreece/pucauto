@@ -4,14 +4,16 @@ from __future__ import print_function
 import json
 import time
 import six
+import pprint
 from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
-
 from lib import logger
+
 
 with open("config.json") as config:
     CONFIG = json.load(config)
+
 
 LOGGER = logger.get_default_logger(__name__)
 DRIVER = webdriver.Firefox()
@@ -23,7 +25,8 @@ LAST_ADD_ON_CHECK = START_TIME
 
 def print_pucauto():
     """Print logo and version number."""
-    # avoid writing the banner to anyplace but the console...
+
+    # Using print instead of LOGGER so this doesn't show up in logs
     print("""
      _______  __   __  _______  _______  __   __  _______  _______
     |       ||  | |  ||       ||   _   ||  | |  ||       ||       |
@@ -32,7 +35,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.1
+    pucauto.com                                              v0.4.2
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -111,25 +114,34 @@ def send_card(card, add_on=False):
     Args:
     card   - A dictionary with href, name, and value keys
     add_on - True if this card is an add on, False if it's part of a bundle
+
+    Returns True if the card was sent, False otherwise.
     """
 
     # Go to the /trades/sendcard/******* page first to secure the trade
-    DRIVER.get(card.get("href"))
+    DRIVER.get(card["href"])
 
     try:
         DRIVER.find_element_by_id("confirm-trade-button")
     except Exception:
-        reason = DRIVER.find_element_by_tag_name("h3").text
-        LOGGER.info("Failed to send {}. Reason: {}".format(card.get("name"), reason))
-        return
+        if not add_on:
+            reason = DRIVER.find_element_by_tag_name("h3").text
+            # Indented for readability because this is part of a bundle and there
+            # are header/footer messages
+            LOGGER.info("  Failed to send {}. Reason: {}".format(card["name"], reason))
+        return False
 
     # Then go to the /trades/confirm/******* page to confirm the trade
-    DRIVER.get(card.get("href").replace("sendcard", "confirm"))
+    DRIVER.get(card["href"].replace("sendcard", "confirm"))
 
     if add_on:
-        LOGGER.info("Added on {} to an unshipped trade for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        LOGGER.info("Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
     else:
-        LOGGER.info("Sent {} for {} PucaPoints!".format(card.get("name"), card.get("value")))
+        # Indented for readability because this is part of a bundle and there
+        # are header/footer messages
+        LOGGER.info("  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
+
+    return True
 
 
 def find_and_send_add_ons():
@@ -140,11 +152,16 @@ def find_and_send_add_ons():
 
     DRIVER.get("https://pucatrade.com/trades/active")
     DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped')
+    # Wait a bit for the DOM to update after filtering
+    time.sleep(5)
+
     soup = BeautifulSoup(DRIVER.page_source, "html.parser")
 
     unshipped = set()
     for a in soup.find_all("a", class_="trader"):
         unshipped.add(a.get("href"))
+
+    LOGGER.debug("Unshipped members:\n{}".format(pprint.pformat(unshipped)))
 
     goto_trades()
     wait_for_load()
@@ -169,6 +186,9 @@ def find_and_send_add_ons():
 
     # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
+
+    LOGGER.debug("Possible addons:\n{}".format(pprint.pformat(sorted_cards)))
+
     for card in sorted_cards:
         send_card(card, True)
 
@@ -179,16 +199,18 @@ def load_trade_list(partial=False):
     function, we would only see a portion of the cards available for trade.
 
     Args:
-    partial - Set to True to only load rows above min_value. This increases
-              speed for trades with large trade lists.
+    partial - When True, only loads rows above min_value, thus speeding up
+              this function
     """
 
     old_scroll_y = 0
     while True:
+        LOGGER.debug("Scrolling trades table")
         if partial:
             try:
                 lowest_visible_points = int(
                     DRIVER.find_element_by_css_selector(".cards-show tbody tr:last-of-type td.points").text)
+                LOGGER.debug("Lowest member points visible in trades table: {}".format(lowest_visible_points))
             except:
                 # We reached the bottom
                 lowest_visible_points = -1
@@ -204,6 +226,7 @@ def load_trade_list(partial=False):
             break
         else:
             old_scroll_y = new_scroll_y
+    LOGGER.debug("Finished scrolling trades table")
 
 
 def build_trades_dict(soup):
@@ -216,7 +239,7 @@ def build_trades_dict(soup):
     Returns a dictionary like:
 
     {
-        "Philip J Fry": {
+        "1984581": {
             "cards": [
                 {
                     "name": "Voice of Resurgence",
@@ -230,18 +253,9 @@ def build_trades_dict(soup):
                 },
                 ...
             ],
-            "points": 9001
-        },
-        "Doctor John Zoidberg": {
-            "cards": [
-                {
-                    "name": "Thoughtseize",
-                    "value": 2050,
-                    "href": https://pucatrade.com/trades/sendcard/46234234
-                },
-                ...
-            ],
-            "points": 100
+            "name": "Philip J. Fry",
+            "points": 9001,
+            "value": 2406
         },
         ...
     }
@@ -250,10 +264,13 @@ def build_trades_dict(soup):
     trades = {}
 
     for row in soup.find_all("tr", id=lambda x: x and x.startswith("uc_")):
+        member_points = int(row.find("td", class_="points").text)
+        if member_points < CONFIG["min_value"]:
+            # This member doesn't have enough points so move on to next row
+            continue
         member_link = row.find("td", class_="member").find("a", href=lambda x: x and x.startswith("/profiles"))
         member_name = member_link.text.strip()
         member_id = member_link["href"].replace("/profiles/show/", "")
-        member_points = int(row.find("td", class_="points").text)
         card_name = row.find("a", class_="cl").text
         card_value = int(row.find("td", class_="value").text)
         card_href = "https://pucatrade.com" + row.find("a", class_="fancybox-send").get("href")
@@ -265,66 +282,73 @@ def build_trades_dict(soup):
         if trades.get(member_id):
             # Seen this member before in another row so just add another card
             trades[member_id]["cards"].append(card)
+            trades[member_id]["value"] += card_value
         else:
             # First time seeing this member so set up the data structure
             trades[member_id] = {
                 "cards": [card],
                 "name": member_name,
-                "points": member_points
+                "points": member_points,
+                "value": card_value
             }
 
     return trades
 
 
 def find_highest_value_bundle(trades):
-    """Iterate through the trades dictionary and find the highest value bundle
-    above the CONFIG min_value.
+    """Find the highest value bundle in the trades dictionary.
 
     Args:
     trades - The result dictionary from build_trades_dict
 
-    Returns the highest value bundle, which is a dictionary, specifically the
-    value of a key from the trades dictionary.
+    Returns the highest value bundle, which is a tuple of the (k, v) from
+    trades.
     """
 
-    min_value = CONFIG.get("min_value")
-    highest_value_bundle = None
+    if len(trades) == 0:
+        return None
 
-    for member, v in six.iteritems(trades):
-        this_bundle_value = 0
-        for card in v.get("cards"):
-            this_bundle_value += card.get("value")
+    highest_value_bundle = max(six.iteritems(trades), key=lambda x: x[1]["value"])
 
-        # If no min_value set,
-        # or this bundle's value is above the min_value
-        #    and this member has enough points
-        if not min_value or (this_bundle_value >= min_value and v.get("points") >= min_value):
-            if not highest_value_bundle or highest_value_bundle["value"] < this_bundle_value:
-                v["value"] = this_bundle_value
-                highest_value_bundle = v
+    LOGGER.debug("Highest value bundle:\n{}".format(pprint.pformat(highest_value_bundle)))
 
-    return highest_value_bundle
+    if highest_value_bundle[1]["value"] >= CONFIG["min_value"]:
+        return highest_value_bundle
+    else:
+        return None
 
 
 def complete_trades(highest_value_bundle):
-    """Iterate through the cards in the bundle and complete the trades.
+    """Sort the cards by highest value first and then send them all.
 
     Args:
-    highest_value_bundle - The result dictionary from find_highest_value_bundle
+    highest_value_bundle - The result tuple from find_highest_value_bundle
     """
 
     if not highest_value_bundle:
         # No valid bundle was found, give up and restart the main loop
         return
 
-    cards = highest_value_bundle.get("cards")
+    cards = highest_value_bundle[1]["cards"]
     # Sort the cards by highest value to make the most valuable trades first.
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
 
-    LOGGER.info("Found {} card(s) to trade...".format(len(sorted_cards)))
+    member_name = highest_value_bundle[1]["name"]
+    member_points = highest_value_bundle[1]["points"]
+    bundle_value = highest_value_bundle[1]["value"]
+    LOGGER.info("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
+        len(sorted_cards), bundle_value, member_name, member_points))
 
+    success_count = 0
+    success_value = 0
     for card in sorted_cards:
-        send_card(card)
+        if send_card(card):
+            success_value += card["value"]
+            success_count += 1
+
+    LOGGER.info("Successfully sent {} out of {} cards worth {} points!".format(
+        success_count, len(sorted_cards), success_value))
+
 
 
 def find_trades():
@@ -334,8 +358,10 @@ def find_trades():
     global LAST_ADD_ON_CHECK
 
     if CONFIG.get("find_add_ons") and should_check_add_ons():
+        LOGGER.debug("Looking for add ons...")
         find_and_send_add_ons()
         LAST_ADD_ON_CHECK = datetime.now()
+    LOGGER.debug("Looking for bundles...")
     goto_trades()
     wait_for_load()
     load_trade_list(True)
