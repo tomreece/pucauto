@@ -95,6 +95,22 @@ see the code and know roughly what's happening even if you're not a developer.
 
 ### Changelog
 
+#### 2015-12-09 [v0.4.2](https://github.com/tomreece/pucauto/archive/v0.4.2.zip)
+* Better output when making trades. Example:
+```
+Found 2 card(s) worth 432 points to trade to Trader Name who has 1208 points...
+  Sent Whisperwood Elemental for 254 PucaPoints!
+  Failed to send Banisher Priest. Reason: Someone beat you to the draw
+  Sent Greenwarden of Murasa for 178 PucaPoints!
+Successfully sent 2 out of 3 cards worth 432 points!
+```
+* Speed improvements:
+    * Immediately stop parsing a row in the trades table if the member has less
+    points than the configured min_value.
+    * Sum total bundle value as we go along instead of doing another pass over
+    the data just to sum.
+* Debugging statements logged to `debug.log` file (Thanks @Droogans)
+
 #### 2015-12-03 [v0.4.1](https://github.com/tomreece/pucauto/archive/v0.4.1.zip)
 * Most importantly, speed up bundle finding by only loading enough of the trade
 list to reach a bottom member whose points exceed `min_value` in config.json
