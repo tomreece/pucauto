@@ -99,9 +99,9 @@ see the code and know roughly what's happening even if you're not a developer.
 * Temporary disable `debug.log` due to an issue that affected Windows users. I
 will look for a better long-term solution but at least now you won't see error
 spam.
-* Fix #51 by explicitly waiting 5 seconds before and after turning on auto
-matching to be extra sure auto matching gets turned on, because if it doesn't
-bad things happen, like sending out Expeditions you don't have.
+* Wait 5 seconds before and after turning on auto matching to be extra sure it's
+on. Because if it isn't then bad things happen, like sending out lots of cards
+you don't have.
 
 #### 2015-12-09 [v0.4.2](https://github.com/tomreece/pucauto/archive/v0.4.2.zip)
 * Better output when making trades. Example:
