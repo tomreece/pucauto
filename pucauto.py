@@ -8,14 +8,12 @@ import pprint
 from selenium import webdriver
 from datetime import datetime
 from bs4 import BeautifulSoup
-from lib import logger
 
 
 with open("config.json") as config:
     CONFIG = json.load(config)
 
 
-LOGGER = logger.get_default_logger(__name__)
 DRIVER = webdriver.Firefox()
 
 
@@ -26,7 +24,6 @@ LAST_ADD_ON_CHECK = START_TIME
 def print_pucauto():
     """Print logo and version number."""
 
-    # Using print instead of LOGGER so this doesn't show up in logs
     print("""
      _______  __   __  _______  _______  __   __  _______  _______
     |       ||  | |  ||       ||   _   ||  | |  ||       ||       |
@@ -128,18 +125,18 @@ def send_card(card, add_on=False):
             reason = DRIVER.find_element_by_tag_name("h3").text
             # Indented for readability because this is part of a bundle and there
             # are header/footer messages
-            LOGGER.info("  Failed to send {}. Reason: {}".format(card["name"], reason))
+            print("  Failed to send {}. Reason: {}".format(card["name"], reason))
         return False
 
     # Then go to the /trades/confirm/******* page to confirm the trade
     DRIVER.get(card["href"].replace("sendcard", "confirm"))
 
     if add_on:
-        LOGGER.info("Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
+        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
     else:
         # Indented for readability because this is part of a bundle and there
         # are header/footer messages
-        LOGGER.info("  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
+        print("  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
 
     return True
 
@@ -160,8 +157,6 @@ def find_and_send_add_ons():
     unshipped = set()
     for a in soup.find_all("a", class_="trader"):
         unshipped.add(a.get("href"))
-
-    LOGGER.debug("Unshipped members:\n{}".format(pprint.pformat(unshipped)))
 
     goto_trades()
     wait_for_load()
@@ -187,7 +182,6 @@ def find_and_send_add_ons():
     # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
 
-    LOGGER.debug("Possible addons:\n{}".format(pprint.pformat(sorted_cards)))
 
     for card in sorted_cards:
         send_card(card, True)
@@ -205,12 +199,10 @@ def load_trade_list(partial=False):
 
     old_scroll_y = 0
     while True:
-        LOGGER.debug("Scrolling trades table")
         if partial:
             try:
                 lowest_visible_points = int(
                     DRIVER.find_element_by_css_selector(".cards-show tbody tr:last-of-type td.points").text)
-                LOGGER.debug("Lowest member points visible in trades table: {}".format(lowest_visible_points))
             except:
                 # We reached the bottom
                 lowest_visible_points = -1
@@ -226,7 +218,6 @@ def load_trade_list(partial=False):
             break
         else:
             old_scroll_y = new_scroll_y
-    LOGGER.debug("Finished scrolling trades table")
 
 
 def build_trades_dict(soup):
@@ -310,8 +301,6 @@ def find_highest_value_bundle(trades):
 
     highest_value_bundle = max(six.iteritems(trades), key=lambda x: x[1]["value"])
 
-    LOGGER.debug("Highest value bundle:\n{}".format(pprint.pformat(highest_value_bundle)))
-
     if highest_value_bundle[1]["value"] >= CONFIG["min_value"]:
         return highest_value_bundle
     else:
@@ -336,7 +325,7 @@ def complete_trades(highest_value_bundle):
     member_name = highest_value_bundle[1]["name"]
     member_points = highest_value_bundle[1]["points"]
     bundle_value = highest_value_bundle[1]["value"]
-    LOGGER.info("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
+    print("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
         len(sorted_cards), bundle_value, member_name, member_points))
 
     success_count = 0
@@ -346,7 +335,7 @@ def complete_trades(highest_value_bundle):
             success_value += card["value"]
             success_count += 1
 
-    LOGGER.info("Successfully sent {} out of {} cards worth {} points!".format(
+    print("Successfully sent {} out of {} cards worth {} points!".format(
         success_count, len(sorted_cards), success_value))
 
 
@@ -358,10 +347,8 @@ def find_trades():
     global LAST_ADD_ON_CHECK
 
     if CONFIG.get("find_add_ons") and should_check_add_ons():
-        LOGGER.debug("Looking for add ons...")
         find_and_send_add_ons()
         LAST_ADD_ON_CHECK = datetime.now()
-    LOGGER.debug("Looking for bundles...")
     goto_trades()
     wait_for_load()
     load_trade_list(True)
@@ -377,16 +364,16 @@ if __name__ == "__main__":
     """Start Pucauto."""
 
     print_pucauto()
-    LOGGER.info("Logging in...")
+    print("Logging in...")
     log_in()
     goto_trades()
     wait_for_load()
-    LOGGER.info("Turning on auto matching...")
+    print("Turning on auto matching...")
     turn_on_auto_matching()
     wait_for_load()
     sort_by_member_points()
     wait_for_load()
-    LOGGER.info("Finding trades...")
+    print("Finding trades...")
     while check_runtime():
         find_trades()
     DRIVER.close()
