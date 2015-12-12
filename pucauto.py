@@ -368,8 +368,17 @@ if __name__ == "__main__":
     log_in()
     goto_trades()
     wait_for_load()
+
+    # Explicit waits to be extra sure auto matching is on because if it's not
+    # then bad things happen, like Pucauto sending out cards you don't have.
+    # TODO: We could get smarter here and find a way to double check auto
+    #   matching really is on, but I don't have a clever solution for it yet, so
+    #   this is a band-aid safety measure.
+    time.sleep(5)
     print("Turning on auto matching...")
     turn_on_auto_matching()
+    time.sleep(5)
+
     wait_for_load()
     sort_by_member_points()
     wait_for_load()
