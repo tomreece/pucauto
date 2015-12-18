@@ -12,7 +12,8 @@ other things like play Fallout 4, or sleep, or while you're at work.
 
 ### Help Support Pucauto Development
 
-[Donate via Dwolla](https://www.dwolla.com/hub/pucauto) or [Donate via Paypal](https://www.paypal.com/cgi-bin/webscr?business=tomreece@gmail.com&cmd=_xclick&currency_code=USD&amount=5&item_name=Pucauto)
+[Donate via Dwolla](https://www.dwolla.com/hub/pucauto) or
+[Donate via Paypal](https://www.paypal.com/cgi-bin/webscr?business=tomreece@gmail.com&cmd=_xclick&currency_code=USD&amount=5&item_name=Pucauto)
 
 ### Installation
 
@@ -26,7 +27,7 @@ other things like play Fallout 4, or sleep, or while you're at work.
 #### Mac / Linux
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
- or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
+or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
 1. Open Terminal.
 1. Go to the Pucauto folder you just cloned or downloaded.
 1. Run `sudo pip install -r requirements.txt` and enter your system password
@@ -35,7 +36,7 @@ when prompted.
 #### Windows
 
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
- or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
+or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
 1. Download Python 2.7.10 from https://www.python.org/downloads/
 1. Install Python 2.7.10 **IMPORTANT:** Select the check box to **Add python.exe to Path**.
 1. Unzip and open the Pucato folder.
@@ -45,11 +46,11 @@ when prompted.
 ### Configuring
 
 1. Open `config.example.json` in a plain text editor like Notepad or Sublime
- Text.
+Text.
 2. Enter your Pucatrade username and password in place of the default values in
- the file. Be sure to keep the quotes around the values.
+the file. Be sure to keep the quotes around the values.
 3. Set the min_value to the lowest value you want Pucauto to accept. Cards or
- bundles under this value will not be traded.
+bundles under this value will not be traded.
 4. Save the file as `config.json`, _not_ `config.example.json` or `config.json.txt`.
 5. You'll get an error on startup if you forget to save as `config.json`.
 
@@ -75,10 +76,10 @@ Changelog at the bottom to learn about new features. If an update happens you
 can upgrade by:
 
 * If you downloaded the .zip, it's probably easiest to just move your config.json
- file to your desktop, delete your Pucauto folder and re-download the new zip.
- You don't have to follow the full installation instructions again.
+file to your desktop, delete your Pucauto folder and re-download the new zip.
+You don't have to follow the full installation instructions again.
 * If you cloned the repository, you probably know how to use git to fetch the
- most recent changes so I'll leave it up to you.
+most recent changes so I'll leave it up to you.
 
 ### FAQ
 
@@ -89,9 +90,30 @@ page. You can see this happening in `pucauto.py`. Your username and password are
 not used for anything else. That's why this project is open source, so you can
 see the code and know roughly what's happening even if you're not a developer.
 
+##### I'm getting a `ValueError: No JSON object could be decoded` or similar message mentioning config.json when starting Pucauto. Help!
+
+This is usually happens because some text editors like TextEdit for Mac try to
+insert smart quotes instead of normal quotes. It's a very subtle difference, but
+it breaks JSON files.
+
+Use a plain text editor like Sublime Text 2 or Notepad to edit your config file.
+
+Also triple check for quotes around your username and password, commas at the ends
+of lines, no quotes around numbers or `true` or `false`, and colons separating
+the key and value.
+
+If you still think everything is fine, you can paste your config.json into
+[this site](http://jsonlint.com) and if it's valid JSON you should get a green
+"Valid JSON" message at the bottom after clicking Validate.
+
+If all else fails, delete your config.json and start over with the config.example.json
+in a plain text editor as I suggested earlier.
+
 ##### How can I contact you?
 
-[@tomreece](https://twitter.com/tomreece) or [@pucautobot](https://twitter.com/pucautobot) or tomreece@gmail.com
+[@tomreece](https://twitter.com/tomreece) or
+[@pucautobot](https://twitter.com/pucautobot) or
+tomreece@gmail.com
 
 ### Changelog
 
