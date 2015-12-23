@@ -116,6 +116,10 @@ def send_card(card, add_on=False):
     Returns True if the card was sent, False otherwise.
     """
 
+    if CONFIG.get("DEBUG"):
+        print("  DEBUG: skipping send on '{}'".format(card["name"]))
+        return False
+
     # Go to the /trades/sendcard/******* page first to secure the trade
     DRIVER.get(card["href"])
 
