@@ -49,6 +49,10 @@ body {
     margin-top: 10px;
 }
 
+.ad-row {
+    margin-bottom: 20px;
+}
+
 /* BOOTSTRAP OVERRIDES */
 
 .navbar-brand {
