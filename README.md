@@ -29,7 +29,7 @@ other things like play Fallout 4, or sleep, or while you're at work.
 1. Clone this repository with `git clone https://github.com/tomreece/pucauto.git`
 or download the [latest release](https://github.com/tomreece/pucauto/archive/master.zip).
 1. Open Terminal.
-1. Go to the Pucauto folder you just cloned or downloaded.
+1. Go to the Pucauto folder you just cloned or downloaded with `cd /path/to/pucauto`
 1. Run `sudo pip install -r requirements.txt` and enter your system password
 when prompted.
 
@@ -110,6 +110,8 @@ If you still think everything is fine, you can paste your config.json into
 
 If all else fails, delete your config.json and start over with the config.example.json
 in a plain text editor as I suggested earlier.
+
+On a Mac, you can disable Smart Quote substitution like this: [imgur link](http://i.imgur.com/wQJ2aud.png)
 
 ##### How can I contact you?
 
