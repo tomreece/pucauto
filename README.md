@@ -64,6 +64,8 @@ you can run Pucauto with:
 Pucauto will start running and you'll see it driving Firefox and outputting text
 in the Terminal.
 
+The best way to stop Pucauto is with `CTRL + C` while in the Terminal window.
+
 **IMPORTANT:** You shouldn't click things or do anything in the Firefox window that
 Pucauto opens because Pucauto expects it to be in a very specific state. You can open
 a new Firefox window to surf the interwebs.
