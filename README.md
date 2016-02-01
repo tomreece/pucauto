@@ -96,22 +96,17 @@ see the code and know roughly what's happening even if you're not a developer.
 
 This is usually happens because some text editors like TextEdit for Mac try to
 insert smart quotes instead of normal quotes. It's a very subtle difference, but
-it breaks JSON files.
-
-Use a plain text editor like Sublime Text 2 or Notepad to edit your config file.
-
-Also triple check for quotes around your username and password, commas at the ends
-of lines, no quotes around numbers or `true` or `false`, and colons separating
-the key and value.
+it breaks JSON files. Use a plain text editor like Sublime Text 2 or Notepad to
+edit your config file. Also triple check for quotes around your username and password,
+commas at the ends of lines, no quotes around numbers or `true` or `false`, and
+colons separating the key and value.
 
 If you still think everything is fine, you can paste your config.json into
 [this site](http://jsonlint.com) and if it's valid JSON you should get a green
 "Valid JSON" message at the bottom after clicking Validate.
 
-If all else fails, delete your config.json and start over with the config.example.json
-in a plain text editor as I suggested earlier.
-
-On a Mac, you can disable Smart Quote substitution like this: [imgur link](http://i.imgur.com/wQJ2aud.png)
+On a Mac, you can disable Smart Quote substitution in TextEdit
+like this: [imgur link](http://i.imgur.com/wQJ2aud.png)
 
 ##### How can I contact you?
 
