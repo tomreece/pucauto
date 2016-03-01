@@ -117,7 +117,7 @@ def send_card(card, add_on=False):
     """
 
     if CONFIG.get("DEBUG"):
-        print("  DEBUG: skipping send on '{}'".format(card["name"]))
+        print(u"  DEBUG: skipping send on '{}'".format(card["name"]))
         return False
 
     # Go to the /trades/sendcard/******* page first to secure the trade
@@ -130,18 +130,18 @@ def send_card(card, add_on=False):
             reason = DRIVER.find_element_by_tag_name("h3").text
             # Indented for readability because this is part of a bundle and there
             # are header/footer messages
-            print("  Failed to send {}. Reason: {}".format(card["name"], reason))
+            print(u"  Failed to send {}. Reason: {}".format(card["name"], reason))
         return False
 
     # Then go to the /trades/confirm/******* page to confirm the trade
     DRIVER.get(card["href"].replace("sendcard", "confirm"))
 
     if add_on:
-        print("Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
+        print(u"Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
     else:
         # Indented for readability because this is part of a bundle and there
         # are header/footer messages
-        print("  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
+        print(u"  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
 
     return True
 
@@ -330,7 +330,7 @@ def complete_trades(highest_value_bundle):
     member_name = highest_value_bundle[1]["name"]
     member_points = highest_value_bundle[1]["points"]
     bundle_value = highest_value_bundle[1]["value"]
-    print("Found {} card(s) worth {} points to trade to {} who has {} points...".format(
+    print(u"Found {} card(s) worth {} points to trade to {} who has {} points...".format(
         len(sorted_cards), bundle_value, member_name, member_points))
 
     success_count = 0
