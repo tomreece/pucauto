@@ -116,6 +116,18 @@ tomreece@gmail.com
 
 ### Changelog
 
+#### 2016-03-01 [v0.4.4](https://github.com/tomreece/pucauto/archive/v0.4.4.zip)
+* Fixed a bug where usernames or card names with special Unicode characters
+would cause Pucauto to crash.
+* Added a debug mode where Pucauto will run as normal but not actually
+commit to sending any cards. This is useful during development or just to see
+how Pucauto would actually perform for you. Debug mode can be enabled by setting
+`"debug": true` in your config.json file. Thanks to eengstrom for this
+contribution!
+* Modify startup.sh script to `killall firefox` after restarting Pucauto. You
+probably only use this file if you're running Pucauto on a cloud server or
+similar environment. Thanks to Wizard37 for this contribution!
+
 #### 2015-12-12 [v0.4.3](https://github.com/tomreece/pucauto/archive/v0.4.3.zip)
 * Temporary disable `debug.log` due to an issue that affected Windows users. I
 will look for a better long-term solution but at least now you won't see error
