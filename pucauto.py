@@ -1,4 +1,4 @@
-#!/usr/bin/env python 
+#!/usr/bin/env python
 
 from __future__ import print_function
 
@@ -116,8 +116,8 @@ def send_card(card, add_on=False):
     Returns True if the card was sent, False otherwise.
     """
 
-    if CONFIG.get("DEBUG"):
-        print(u"  DEBUG: skipping send on '{}'".format(card["name"]))
+    if CONFIG.get("debug"):
+        print(u"  DEBUG: Skipping send of '{}'".format(card["name"]))
         return False
 
     # Go to the /trades/sendcard/******* page first to secure the trade
@@ -186,7 +186,6 @@ def find_and_send_add_ons():
 
     # Sort by highest value to send those cards first
     sorted_cards = sorted(cards, key=lambda k: k["value"], reverse=True)
-
 
     for card in sorted_cards:
         send_card(card, True)
