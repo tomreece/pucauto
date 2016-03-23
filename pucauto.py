@@ -34,7 +34,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.4
+    pucauto.com                                              v0.4.5
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -154,12 +154,12 @@ def find_and_send_add_ons():
     """
 
     DRIVER.get("https://pucatrade.com/trades/active")
-    
+
     try:
         DRIVER.find_element_by_css_selector("div.dataTables_filter input").send_keys('Unshipped')
     except NoSuchElementException:
         return
-        
+
     # Wait a bit for the DOM to update after filtering
     time.sleep(5)
 
