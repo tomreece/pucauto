@@ -116,6 +116,10 @@ tomreece@gmail.com
 
 ### Changelog
 
+#### 2016-07-11 [v0.4.6](https://github.com/tomreece/pucauto/archive/v0.4.6.zip)
+* Account for new PucaShield insurance checkbox.
+* Bump selenium version to 2.53.6 to work with Firefox 47.0.1
+
 #### 2016-03-22 [v0.4.5](https://github.com/tomreece/pucauto/archive/v0.4.5.zip)
 * Fixed a crash upon startup caused by an outdated dependency version (Selenium).
 * Fixed a crash when searching for addons if you had no outgoing trades on your

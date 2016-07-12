@@ -34,7 +34,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.5
+    pucauto.com                                              v0.4.6
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -134,8 +134,17 @@ def send_card(card, add_on=False):
             print(u"  Failed to send {}. Reason: {}".format(card["name"], reason))
         return False
 
+    # See if the the PucaShield insurance checkbox is checked or not
+    # This is determined by the user's PucaShield threshold value in their settings
+    is_insurance_selected = DRIVER.find_element_by_id("insurance").is_selected()
+
+    confirm_url = card["href"].replace("sendcard", "confirm")
+
+    if is_insurance_selected:
+        confirm_url += "?ins=1"
+
     # Then go to the /trades/confirm/******* page to confirm the trade
-    DRIVER.get(card["href"].replace("sendcard", "confirm"))
+    DRIVER.get(confirm_url)
 
     if add_on:
         print(u"Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
