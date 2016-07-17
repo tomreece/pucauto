@@ -5,7 +5,6 @@ from __future__ import print_function
 import json
 import time
 import six
-import pprint
 from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
@@ -23,6 +22,11 @@ START_TIME = datetime.now()
 LAST_ADD_ON_CHECK = START_TIME
 
 
+def log(s):
+    """Prints s with the date/time like Jul 16 09:15:48 PM CDT  Hello world"""
+    print("{}  {}".format(time.strftime("%b %d %I:%M:%S %p %Z"), s))
+
+
 def print_pucauto():
     """Print logo and version number."""
 
@@ -34,7 +38,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.6
+    pucauto.com                                              v0.4.7
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -118,7 +122,7 @@ def send_card(card, add_on=False):
     """
 
     if CONFIG.get("debug"):
-        print(u"  DEBUG: Skipping send of '{}'".format(card["name"]))
+        log(u"  DEBUG: Skipping send of '{}'".format(card["name"]))
         return False
 
     # Go to the /trades/sendcard/******* page first to secure the trade
@@ -131,7 +135,7 @@ def send_card(card, add_on=False):
             reason = DRIVER.find_element_by_tag_name("h3").text
             # Indented for readability because this is part of a bundle and there
             # are header/footer messages
-            print(u"  Failed to send {}. Reason: {}".format(card["name"], reason))
+            log(u"  Failed to send {}. Reason: {}".format(card["name"], reason))
         return False
 
     # See if the the PucaShield insurance checkbox is checked or not
@@ -147,11 +151,11 @@ def send_card(card, add_on=False):
     DRIVER.get(confirm_url)
 
     if add_on:
-        print(u"Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
+        log(u"Added on {} to an unshipped trade for {} PucaPoints!".format(card["name"], card["value"]))
     else:
         # Indented for readability because this is part of a bundle and there
         # are header/footer messages
-        print(u"  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
+        log(u"  Sent {} for {} PucaPoints!".format(card["name"], card["value"]))
 
     return True
 
@@ -344,7 +348,7 @@ def complete_trades(highest_value_bundle):
     member_name = highest_value_bundle[1]["name"]
     member_points = highest_value_bundle[1]["points"]
     bundle_value = highest_value_bundle[1]["value"]
-    print(u"Found {} card(s) worth {} points to trade to {} who has {} points...".format(
+    log(u"Found {} card(s) worth {} points to trade to {} who has {} points...".format(
         len(sorted_cards), bundle_value, member_name, member_points))
 
     success_count = 0
@@ -354,7 +358,7 @@ def complete_trades(highest_value_bundle):
             success_value += card["value"]
             success_count += 1
 
-    print("Successfully sent {} out of {} cards worth {} points!".format(
+    log("Successfully sent {} out of {} cards worth {} points!".format(
         success_count, len(sorted_cards), success_value))
 
 
@@ -366,6 +370,7 @@ def find_trades():
     global LAST_ADD_ON_CHECK
 
     if CONFIG.get("find_add_ons") and should_check_add_ons():
+        log("Finding add-ons...")
         find_and_send_add_ons()
         LAST_ADD_ON_CHECK = datetime.now()
     goto_trades()
@@ -383,7 +388,7 @@ if __name__ == "__main__":
     """Start Pucauto."""
 
     print_pucauto()
-    print("Logging in...")
+    log("Logging in...")
     log_in()
     goto_trades()
     wait_for_load()
@@ -394,14 +399,14 @@ if __name__ == "__main__":
     #   matching really is on, but I don't have a clever solution for it yet, so
     #   this is a band-aid safety measure.
     time.sleep(5)
-    print("Turning on auto matching...")
+    log("Turning on auto matching...")
     turn_on_auto_matching()
     time.sleep(5)
 
     wait_for_load()
     sort_by_member_points()
     wait_for_load()
-    print("Finding trades...")
+    log("Finding trades...")
     while check_runtime():
         find_trades()
     DRIVER.close()

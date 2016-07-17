@@ -116,6 +116,9 @@ tomreece@gmail.com
 
 ### Changelog
 
+#### 2016-07-16 [v0.4.7](https://github.com/tomreece/pucauto/archive/v0.4.7.zip)
+* Show date and time in log output
+
 #### 2016-07-11 [v0.4.6](https://github.com/tomreece/pucauto/archive/v0.4.6.zip)
 * Account for new PucaShield insurance checkbox.
 * Bump selenium version to 2.53.6 to work with Firefox 47.0.1
