@@ -24,7 +24,7 @@ LAST_ADD_ON_CHECK = START_TIME
 
 def log(s):
     """Prints s with the date/time like Jul 16 09:15:48 PM CDT  Hello world"""
-    print("{}  {}".format(time.strftime("%b %d %I:%M:%S %p %Z"), s))
+    print(u"{}  {}".format(time.strftime("%b %d %I:%M:%S %p %Z"), s))
 
 
 def print_pucauto():
@@ -38,7 +38,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.7
+    pucauto.com                                              v0.4.8
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
