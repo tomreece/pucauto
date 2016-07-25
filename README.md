@@ -116,6 +116,10 @@ tomreece@gmail.com
 
 ### Changelog
 
+#### 2016-07-24 [v0.4.9](https://github.com/tomreece/pucauto/archive/v0.4.9.zip)
+* Fix crash caused when user didn't have enough points to pay for PucaShield
+insurance.
+
 #### 2016-07-17 [v0.4.8](https://github.com/tomreece/pucauto/archive/v0.4.8.zip)
 * Fix unicode character support in log output
 

@@ -38,7 +38,7 @@ def print_pucauto():
     |    ___||       ||      _||       ||       |  |   |  |  |_|  |
     |   |    |       ||     |_ |   _   ||       |  |   |  |       |
     |___|    |_______||_______||__| |__||_______|  |___|  |_______|
-    pucauto.com                                              v0.4.8
+    pucauto.com                                              v0.4.9
     github.com/tomreece/pucauto
     @pucautobot on Twitter
 
@@ -138,9 +138,14 @@ def send_card(card, add_on=False):
             log(u"  Failed to send {}. Reason: {}".format(card["name"], reason))
         return False
 
-    # See if the the PucaShield insurance checkbox is checked or not
-    # This is determined by the user's PucaShield threshold value in their settings
-    is_insurance_selected = DRIVER.find_element_by_id("insurance").is_selected()
+    try:
+        # See if the the PucaShield insurance checkbox is checked or not
+        # This is determined by the user's PucaShield threshold value in their settings
+        is_insurance_selected = DRIVER.find_element_by_id("insurance").is_selected()
+    except NoSuchElementException:
+        # If the user doesn't have enough points to pay for PucaShield, then the
+        # checkbox will not be on the page. This prevents a crash in that case.
+        is_insurance_selected = False
 
     confirm_url = card["href"].replace("sendcard", "confirm")
 
